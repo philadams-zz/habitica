@@ -21,6 +21,8 @@ TODO
 future
 ------
 
+- config file (json? INI?)
+- test harness
 - finish implementing GET endpoints
 - prettify with [clint](https://github.com/kennethreitz/clint)
 - POST endpoints

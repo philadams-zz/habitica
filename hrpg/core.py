@@ -9,7 +9,13 @@ http://github.com/philadams/hrpg
 """
 
 
+import json
+
+import requests
 from docopt import docopt
+from pprint import pprint
+
+API_URI_BASE = 'https://habitrpg.com/api/v1'
 
 
 def cli():
@@ -35,6 +41,19 @@ def cli():
       <none>        Get user status for this user (convenience)
     """
     args = docopt(cli.__doc__, version='hrpg version 0.0.2')
+
+    if args['status']:
+        req = requests.get(API_URI_BASE + '/status')
+        if req.status_code == 200:
+            res = json.loads(req.text)
+            if res['status'] == 'up':
+                print('Up and running! All is well.')
+    elif args['user']:
+        raise NotImplementedError
+    elif args['tasks']:
+        raise NotImplementedError
+    elif args['task']:
+        raise NotImplementedError
 
 
 if __name__ == '__main__':

@@ -21,4 +21,6 @@ TODO
 future
 ------
 
-TODO
+- finish implementing GET endpoints
+- prettify with [clint](https://github.com/kennethreitz/clint)
+- POST endpoints

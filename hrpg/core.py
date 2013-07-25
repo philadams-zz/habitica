@@ -10,11 +10,14 @@ http://github.com/philadams/hrpg
 
 
 import json
+import os
 
-import requests
 from docopt import docopt
 from pprint import pprint
+import requests
 
+VERSION = 'hrpg version 0.0.4'
+CONFIG_FILE = '~/.hrpgrc'
 API_URI_BASE = 'https://habitrpg.com/api/v1'
 
 
@@ -40,18 +43,45 @@ def cli():
       task          Get task <tid> details
       <none>        Get user status for this user (convenience)
     """
-    args = docopt(cli.__doc__, version='hrpg version 0.0.2')
 
+    # load config
+    config = None
+    try:
+        config = json.load(open(os.path.expanduser(CONFIG_FILE), 'r'))
+        uid, key = config['x-api-user'], config['x-api-key']
+    except IOError as err:
+        print('No config file at %s' % CONFIG_FILE)
+        exit()
+    except ValueError as err:
+        print('Malformed config file at %s\n' % CONFIG_FILE)
+        print(err.msg)
+        exit()
+    except KeyError as err:
+        print('Missing config key,value in %s\n' % CONFIG_FILE)
+        print(err.msg)
+        exit()
+
+    # set up args
+    args = docopt(cli.__doc__, version=VERSION)
+    pprint(args)
+
+    # GET status
     if args['status']:
         req = requests.get(API_URI_BASE + '/status')
         if req.status_code == 200:
             res = json.loads(req.text)
             if res['status'] == 'up':
                 print('Up and running! All is well.')
+
+    # GET user
     elif args['user']:
         raise NotImplementedError
+
+    # GET tasks
     elif args['tasks']:
         raise NotImplementedError
+
+    # GET task
     elif args['task']:
         raise NotImplementedError
 

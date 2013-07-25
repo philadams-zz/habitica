@@ -77,17 +77,23 @@ def cli():
     # TODO fix hackish default setting - might be a docopt config opt?
     elif args['user'] or not (args['tasks'] or args['task']):
         req = requests.get(API_URI_BASE + '/user', headers=config)
+        res = req.json()
         if req.status_code == 200:
-            res = req.json()
             pprint(res['stats'])
-            print('\n...and a whole crapload of other stuff...')
+            print('\n...and a whole crapload of other stuff')
         else:
             print('Unhandled HTTP status code')
             raise NotImplementedError
 
     # GET tasks
     elif args['tasks']:
-        raise NotImplementedError
+        req = requests.get(API_URI_BASE + '/user/tasks', headers=config)
+        res = req.json()
+        if req.status_code == 200:
+            print('You have %d tasks (some completed or ongoing)' % len(res))
+        else:
+            print('Unhandled HTTP status code')
+            raise NotImplementedError
 
     # GET task
     elif args['task']:

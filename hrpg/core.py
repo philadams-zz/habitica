@@ -28,7 +28,7 @@ def cli():
     usage:
       hrpg status
       hrpg user [<uid>]
-      hrpg tasks (--habit | --daily | --todo | --reward) [<uid>]
+      hrpg tasks [--habit | --daily | --todo | --reward] [<uid>]
       hrpg task <tid> [<uid>]
       hrpg
       hrpg --version

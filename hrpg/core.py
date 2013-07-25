@@ -19,6 +19,7 @@ import requests
 VERSION = 'hrpg version 0.0.4'
 CONFIG_FILE = '~/.hrpgrc'
 API_URI_BASE = 'https://habitrpg.com/api/v1'
+API_CONTENT_TYPE = 'application/json'
 
 
 def cli():
@@ -63,19 +64,26 @@ def cli():
 
     # set up args
     args = docopt(cli.__doc__, version=VERSION)
-    pprint(args)
 
     # GET status
     if args['status']:
         req = requests.get(API_URI_BASE + '/status')
         if req.status_code == 200:
-            res = json.loads(req.text)
+            res = req.json()
             if res['status'] == 'up':
                 print('Up and running! All is well.')
 
     # GET user
-    elif args['user']:
-        raise NotImplementedError
+    # TODO fix hackish default setting - might be a docopt config opt?
+    elif args['user'] or not (args['tasks'] or args['task']):
+        req = requests.get(API_URI_BASE + '/user', headers=config)
+        if req.status_code == 200:
+            res = req.json()
+            pprint(res['stats'])
+            print('\n...and a whole crapload of other stuff...')
+        else:
+            print('Unhandled HTTP status code')
+            raise NotImplementedError
 
     # GET tasks
     elif args['tasks']:

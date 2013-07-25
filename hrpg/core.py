@@ -30,7 +30,6 @@ def cli():
       hrpg user [<uid>]
       hrpg tasks [--habit | --daily | --todo | --reward] [<uid>]
       hrpg task <tid> [<uid>]
-      hrpg
       hrpg --version
 
     options:
@@ -42,7 +41,6 @@ def cli():
       user          Get user <uid> status
       tasks         Get user <uid> tasks
       task          Get task <tid> details
-      <none>        Get user status for this user (convenience)
     """
 
     # load config

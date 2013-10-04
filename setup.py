@@ -5,7 +5,7 @@ with open('README.txt') as f:
 
 setup(
     name='hrpg',
-    version='0.0.1',
+    version='0.0.4',
     author='Phil Adams',
     author_email='philadams.net@gmail.com',
     url='https://github.com/philadams/hrpg',

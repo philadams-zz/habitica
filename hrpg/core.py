@@ -22,13 +22,23 @@ API_URI_BASE = 'https://habitrpg.com/api/v1'
 API_CONTENT_TYPE = 'application/json'
 
 
+def call_api(endpoint, headers=None, params=None):
+    """make a call to the hrpg api and, on success, return json"""
+    url = '%s%s' % (API_URI_BASE, endpoint)
+    req = requests.get(url, headers=headers, params=params)
+    if req.status_code == 200:
+        return req.json()
+    else:
+        print('Unhandled HTTP status code')
+        raise NotImplementedError
+
+
 def cli():
     """HabitRPG command-line interface.
 
     usage:
       hrpg status
-      hrpg tasks [--habit | --daily | --todo | --reward]
-      hrpg habit|daily|todo|reward
+      hrpg tasks|habit|daily|todo|reward
       hrpg task <tid> [<uid>]
       hrpg --version
       hrpg server
@@ -39,11 +49,11 @@ def cli():
 
     Subcommands:
       status        Show HP, XP, and GP for user
-      tasks         List user tasks
       habit         List habit tasks
       daily         List daily tasks
       todo          List todo tasks
       reward        List reward tasks
+      tasks         List user tasks of all types
       task          Show task <tid> details
       server        Show status of HabitRPG service
     """
@@ -70,68 +80,41 @@ def cli():
 
     # GET status
     if args['server']:
-        req = requests.get(API_URI_BASE + '/status')
-        if req.status_code == 200:
-            res = req.json()
-            if res['status'] == 'up':
-                print('Up and running! All is well.')
+        res = call_api('/status')
+        if res['status'] == 'up':
+            print('Up and running! All is well.')
+        else:
+            print('HRPG server is down...')
 
     # GET user
     elif args['status']:
-        req = requests.get(API_URI_BASE + '/user', headers=config)
-        res = req.json()
-        if req.status_code == 200:
-            pprint(res['stats'])
-            print('\n...and a whole crapload of other stuff')
-        else:
-            print('Unhandled HTTP status code')
-            raise NotImplementedError
+        res = call_api('/user', headers=config)
+        pprint(res['stats'])
 
     # GET tasks:habit
     elif args['habit']:
         payload = {'type': 'habit'}
-        req = requests.get(API_URI_BASE + '/user/tasks',
-                headers=config,
-                params=payload)
-        res = req.json()
-        if req.status_code == 200:
-            pprint([e['text'] for e in res])
-        else:
-            print('Unhandled HTTP status code')
-            raise NotImplementedError
+        res = call_api('/user/tasks', headers=config, params=payload)
+        pprint([e['text'] for e in res])
 
     # GET tasks:daily
     elif args['daily']:
         payload = {'type': 'daily'}
-        req = requests.get(API_URI_BASE + '/user/tasks',
-                headers=config,
-                params=payload)
-        res = req.json()
-        if req.status_code == 200:
-            pprint([e['text'] for e in res])
-        else:
-            print('Unhandled HTTP status code')
-            raise NotImplementedError
+        res = call_api('/user/tasks', headers=config, params=payload)
+        pprint([e['text'] for e in res])
 
     # GET tasks:todo
     elif args['todo']:
         payload = {'type': 'todo'}
-        req = requests.get(API_URI_BASE + '/user/tasks',
-                headers=config,
-                params=payload)
-        res = req.json()
-        if req.status_code == 200:
-            pprint([e['text'] for e in res if not e['completed']])
-        else:
-            print('Unhandled HTTP status code')
-            raise NotImplementedError
+        res = call_api('/user/tasks', headers=config, params=payload)
+        pprint([e['text'] for e in res if not e['completed']])
 
     elif args['tasks']:
-        raise NotImplementedError
+        raise NotImplementedError  # no hurry on this one...
 
     # GET task
     elif args['task']:
-        raise NotImplementedError
+        raise NotImplementedError  # only really useful for the history...
 
 
 if __name__ == '__main__':

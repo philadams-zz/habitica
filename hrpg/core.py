@@ -27,20 +27,25 @@ def cli():
 
     usage:
       hrpg status
-      hrpg user [<uid>]
-      hrpg tasks [--habit | --daily | --todo | --reward] [<uid>]
+      hrpg tasks [--habit | --daily | --todo | --reward]
+      hrpg habit|daily|todo|reward
       hrpg task <tid> [<uid>]
       hrpg --version
+      hrpg server
 
     options:
       -h --help     Show this screen.
       --version     Show version.
 
     Subcommands:
-      status        Get status of HabitRPG service
-      user          Get user <uid> status
-      tasks         Get user <uid> tasks
-      task          Get task <tid> details
+      status        Show HP, XP, and GP for user
+      tasks         List user tasks
+      habit         List habit tasks
+      daily         List daily tasks
+      todo          List todo tasks
+      reward        List reward tasks
+      task          Show task <tid> details
+      server        Show status of HabitRPG service
     """
 
     # load config
@@ -64,7 +69,7 @@ def cli():
     args = docopt(cli.__doc__, version=VERSION)
 
     # GET status
-    if args['status']:
+    if args['server']:
         req = requests.get(API_URI_BASE + '/status')
         if req.status_code == 200:
             res = req.json()
@@ -72,8 +77,7 @@ def cli():
                 print('Up and running! All is well.')
 
     # GET user
-    # TODO fix hackish default setting - might be a docopt config opt?
-    elif args['user'] or not (args['tasks'] or args['task']):
+    elif args['status']:
         req = requests.get(API_URI_BASE + '/user', headers=config)
         res = req.json()
         if req.status_code == 200:
@@ -83,15 +87,47 @@ def cli():
             print('Unhandled HTTP status code')
             raise NotImplementedError
 
-    # GET tasks
-    elif args['tasks']:
-        req = requests.get(API_URI_BASE + '/user/tasks', headers=config)
+    # GET tasks:habit
+    elif args['habit']:
+        payload = {'type': 'habit'}
+        req = requests.get(API_URI_BASE + '/user/tasks',
+                headers=config,
+                params=payload)
         res = req.json()
         if req.status_code == 200:
-            print('You have %d tasks (some completed or ongoing)' % len(res))
+            pprint([e['text'] for e in res])
         else:
             print('Unhandled HTTP status code')
             raise NotImplementedError
+
+    # GET tasks:daily
+    elif args['daily']:
+        payload = {'type': 'daily'}
+        req = requests.get(API_URI_BASE + '/user/tasks',
+                headers=config,
+                params=payload)
+        res = req.json()
+        if req.status_code == 200:
+            pprint([e['text'] for e in res])
+        else:
+            print('Unhandled HTTP status code')
+            raise NotImplementedError
+
+    # GET tasks:todo
+    elif args['todo']:
+        payload = {'type': 'todo'}
+        req = requests.get(API_URI_BASE + '/user/tasks',
+                headers=config,
+                params=payload)
+        res = req.json()
+        if req.status_code == 200:
+            pprint([e['text'] for e in res if not e['completed']])
+        else:
+            print('Unhandled HTTP status code')
+            raise NotImplementedError
+
+    elif args['tasks']:
+        raise NotImplementedError
 
     # GET task
     elif args['task']:

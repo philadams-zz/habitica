@@ -21,8 +21,8 @@ TODO
 future
 ------
 
-- config file (json? INI?)
-- test harness
-- finish implementing GET endpoints
+- add --avatar option to status!!!
+- abstract GET endpoints such that request happens elsewhere
 - prettify with [clint](https://github.com/kennethreitz/clint)
 - POST endpoints
+- test harness?

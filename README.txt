@@ -1,21 +1,17 @@
 hrpg
 ====
 
-A commandline interface to [HabitRPG](http://habitrpg.com). Written in
-Python.
+Three tools for interacting with [HabitRPG](http://habitrpg.com):
 
-Three tools in one!
-
-1. Python wrapper for the RESTful HRPG API
-2. Single-call commandline interface with options, subcommands, etc.
-3. An interactive commandline interface (`hrpg --interactive` - soon)
+1. Python wrapper for the RESTful Habit RPG api (`hrpg.api`)
+2. Command-line interface with subcommands (e.g. `> hrpg habits`)
+3. An interactive command-line interface (`hrpg --interactive` - in
+   development)
 
 install
 -------
 
-`pip install hrpg`.
-
-Then you'll want to TODO API credentials.
+First `pip install hrpg`. Then you'll want to TODO API credentials.
 
 help
 ----
@@ -23,6 +19,14 @@ help
 Via `hrpg --help`:
 
 TODO
+
+thanks
+------
+
+Much thanks to the following excellent projects:
+
+- docopt
+- requests
 
 future
 ------

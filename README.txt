@@ -31,7 +31,7 @@ Much thanks to the following excellent projects:
 future
 ------
 
-- add --avatar option to status!!!
+- figure out the cleanest way to select a task for an action (tid sucks)
 - test harness
 - prettify with [clint](https://github.com/kennethreitz/clint)
 - POST endpoints

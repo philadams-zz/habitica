@@ -39,29 +39,39 @@ class HRPG(object):
             if not self.resource:
                 return HRPG(auth=self.auth, resource=m)
             else:
-                return HRPG(auth=self.auth, resource=self.resource,
-                            aspect=m)
+                return HRPG(auth=self.auth, resource=self.resource, aspect=m)
 
     def __call__(self, **kwargs):
+        method = kwargs.pop('_method', 'get')
+
+        # build up URL... HRPG's api is the *teeniest* bit annoying
+        # so either i need to find a cleaner way here, or i should
+        # get involved in the API itself and... help it.
         if self.aspect:
-            aspect_id = kwargs.pop('id', None)
+            aspect_id = kwargs.pop('_id', None)
+            direction = kwargs.pop('_direction', None)
             if aspect_id is not None:
                 uri = '%s/%s/%s/%s' % (API_URI_BASE,
                                        self.resource,
                                        self.aspect,
                                        str(aspect_id))
             else:
-                uri = '%s/%s/%s' % (API_URI_BASE,
-                                    self.resource,
-                                    self.aspect)
+                uri = '%s/%s/%s' % (API_URI_BASE, self.resource, self.aspect)
+            if direction is not None:
+                uri = '%s/%s' % (uri, direction)
         else:
-            uri = '%s/%s' % (API_URI_BASE,
-                             self.resource)
+            uri = '%s/%s' % (API_URI_BASE, self.resource)
 
-        req = requests.get(uri, headers=self.headers, params=kwargs)
-        #print(req.url)  # debug...
-        if req.status_code == 200:
-            return req.json()
+        # actually make the request of the API
+        if method in ['put', 'post']:
+            res = getattr(requests, method)(uri, headers=self.headers,
+                                            data=json.dumps(kwargs))
         else:
-            print('Unhandled HTTP status code')
-            raise NotImplementedError
+            res = getattr(requests, method)(uri, headers=self.headers,
+                                            params=kwargs)
+
+        print(res.url)  # debug...
+        if res.status_code == requests.codes.ok:
+            return res.json()
+        else:
+            res.raise_for_status()

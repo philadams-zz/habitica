@@ -27,9 +27,8 @@ def cli():
     usage:
       hrpg status
       hrpg tasks|habit|daily|todo|reward
-      hrpg history <tid>
-      hrpg (-i | --interactive)
-      hrpg --version
+      hrpg yay <tid>
+      hrpg doh <tid>
       hrpg server
 
     options:
@@ -38,14 +37,18 @@ def cli():
       -i, --interactive  Interactive mode
 
     Subcommands:
-      status        Show HP, XP, and GP for user
-      habit         List habit tasks
       daily         List daily tasks
-      todo          List todo tasks
+      doh           Down (-) habit <tid>
+      done          Mark <tid> task as completed
+      habit         List habit tasks
+      show          Show task <tid> details
       reward        List reward tasks
-      tasks         List user tasks of all types
-      task          Show task <tid> details
       server        Show status of HabitRPG service
+      status        Show HP, XP, and GP for user
+      tasks         List user tasks of all types
+      todo          List todo tasks
+      undo          Mark <tid> task as incomplete
+      yay           Up (+) habit <tid>
     """
 
     # load config
@@ -93,6 +96,23 @@ def cli():
         dailies = hbt.user.tasks(type='daily')
         pprint([e['text'] for e in dailies])
 
+    # POST yay
+    elif args['yay']:
+        res = hbt.user.tasks(_id=args['<tid>'], _direction='up', _method='post')
+        pprint(res)
+
+    # POST doh
+    elif args['doh']:
+        res = hbt.user.tasks(_id=args['<tid>'], _direction='down', _method='post')
+        pprint(res)
+
+    # TODO PUT done
+    #elif args['done']:
+    #    res = hbt.user.task(_id=args['<tid>'], _method='put', completed=True)
+    #    pprint(res)
+
+    # TODO PUT undo
+
     # GET tasks:todo
     elif args['todo']:
         todos = hbt.user.tasks(type='todo')
@@ -100,10 +120,6 @@ def cli():
 
     elif args['tasks']:
         raise NotImplementedError  # no hurry on this one...
-
-    # GET task
-    elif args['task']:
-        raise NotImplementedError  # only really useful for the history...
 
 
 if __name__ == '__main__':

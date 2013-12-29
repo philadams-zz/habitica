@@ -15,4 +15,3 @@ setup(
     packages=['hrpg'],
     scripts=['bin/hrpg'],
 )
-

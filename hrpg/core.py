@@ -11,7 +11,6 @@ http://github.com/philadams/hrpg
 
 import json
 import os
-import cmd
 from pprint import pprint
 
 from docopt import docopt
@@ -19,6 +18,20 @@ from . import api
 
 VERSION = 'hrpg version 0.0.4'
 CONFIG_FILE = '~/.hrpgrc'
+
+
+def load_config(fname):
+    config = None
+    try:
+        config = json.load(open(os.path.expanduser(fname), 'r'))
+    except IOError as err:
+        raise IOError('No config file at %s' % fname)
+    except ValueError as err:
+        print('Malformed config file at %s\n' % fname)
+        raise ValueError(err.msg)
+    except KeyError as err:
+        raise KeyError('Missing config key,value in %s\n' % fname)
+    raise config
 
 
 def cli():
@@ -51,24 +64,11 @@ def cli():
       yay           Up (+) habit <tid>
     """
 
-    # load config
-    config = None
-    try:
-        config = json.load(open(os.path.expanduser(CONFIG_FILE), 'r'))
-        authkeys = ['x-api-user', 'x-api-key']
-        auth = dict([(k, config[k]) for k in authkeys])
-        #auth = dict([(k, config[k]) for k in authkeys if k in config])
-    except IOError as err:
-        print('No config file at %s' % CONFIG_FILE)
-        exit()
-    except ValueError as err:
-        print('Malformed config file at %s\n' % CONFIG_FILE)
-        print(err.msg)
-        exit()
-    except KeyError as err:
-        print('Missing config key,value in %s\n' % CONFIG_FILE)
-        print(err.msg)
-        exit()
+    # load config and set auth
+    config = load_config(CONFIG_FILE)
+    authkeys = ['x-api-user', 'x-api-key']
+    auth = dict([(k, config[k]) for k in authkeys])
+    #auth = dict([(k, config[k]) for k in authkeys if k in config])
 
     # set up args
     args = docopt(cli.__doc__, version=VERSION)
@@ -98,12 +98,14 @@ def cli():
 
     # POST yay
     elif args['yay']:
-        res = hbt.user.tasks(_id=args['<tid>'], _direction='up', _method='post')
+        res = hbt.user.tasks(_id=args['<tid>'],
+                             _direction='up', _method='post')
         pprint(res)
 
     # POST doh
     elif args['doh']:
-        res = hbt.user.tasks(_id=args['<tid>'], _direction='down', _method='post')
+        res = hbt.user.tasks(_id=args['<tid>'],
+                             _direction='down', _method='post')
         pprint(res)
 
     # TODO PUT done

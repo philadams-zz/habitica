@@ -10,9 +10,6 @@ http://github.com/philadams/hrpg
 
 
 import json
-import os
-import cmd
-from pprint import pprint
 
 import requests
 
@@ -35,7 +32,7 @@ class HRPG(object):
     def __getattr__(self, m):
         try:
             return object.__getattr__(self, m)
-        except AttributeError as e:
+        except AttributeError:
             if not self.resource:
                 return HRPG(auth=self.auth, resource=m)
             else:

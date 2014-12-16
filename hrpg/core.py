@@ -60,6 +60,15 @@ def from_cache(key):
     return json.load(open(os.path.expanduser(CACHE_FILE), 'r'))[key]
 
 
+def clear_cache():
+    """delete the cache file CACHE_FILE."""
+    try:
+        os.remove(os.path.expanduser(CACHE_FILE))
+    except OSError:
+        pass  # overwhelmingly, the cache file wasn't there
+    print('cache file (%s) deleted' % CACHE_FILE)
+
+
 def cli():
     """HabitRPG command-line interface.
 
@@ -69,12 +78,14 @@ def cli():
       hrpg yay <tid>
       hrpg doh <tid>
       hrpg server
+      hrpg clear-cache
 
     options:
       -h --help          Show this screen
       --version          Show version
 
     Subcommands:
+      clear-cache   Wipe out local (home dir) cache
       dailies       List daily tasks
       doh           Down (-) habit <tid>
       done          Mark <tid> task as completed
@@ -99,8 +110,12 @@ def cli():
     # instantiate api service
     hbt = api.HRPG(auth=auth)
 
+    # clear cache
+    if args['clear-cache']:
+        clear_cache()
+
     # GET server status
-    if args['server']:
+    elif args['server']:
         server = hbt.status()
         pprint(server)
 
@@ -148,9 +163,6 @@ def cli():
     elif args['todos']:
         todos = hbt.user.tasks(type='todo')
         pprint([e['text'] for e in todos if not e['completed']])
-
-    elif args['tasks']:
-        raise NotImplementedError  # no hurry on this one...
 
 
 if __name__ == '__main__':

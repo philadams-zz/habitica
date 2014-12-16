@@ -75,8 +75,11 @@ def cli():
     usage:
       hrpg status
       hrpg habits|dailies|todos
-      hrpg yay <tid>
-      hrpg doh <tid>
+      hrpg habits up <task-id>
+      hrpg habits down <task-id>
+      hrpg dailies done <task-id>
+      hrpg dailies undo <task-id>
+      hrpg todos done <task-id>
       hrpg server
       hrpg clear-cache
 
@@ -85,17 +88,17 @@ def cli():
       --version          Show version
 
     Subcommands:
-      clear-cache   Wipe out local (home dir) cache
-      dailies       List daily tasks
-      doh           Down (-) habit <tid>
-      done          Mark <tid> task as completed
-      habits        List habit tasks
-      show          Show task <tid> details
-      server        Show status of HabitRPG service
-      status        Show HP, XP, and GP for user
-      todos         List todo tasks
-      undo          Mark <tid> task as incomplete
-      yay           Up (+) habit <tid>
+      status               Show HP, XP, and GP for user
+      habits               List habit tasks
+      habits up <task-id>  Up (+) habit <task-id>
+      habits down <task-id>  Up (+) habit <task-id>
+      dailies              List daily tasks
+      dailies done         Mark daily <task-id> complete
+      dailies undo         Mark daily <task-id> incomplete
+      todos                List todo tasks
+      todos done <task-id> Mark todo <task-id> completed
+      server               Show status of HabitRPG service
+      clear-cache          Wipe out local (home dir) cache
     """
 
     # load config and set auth
@@ -124,45 +127,62 @@ def cli():
         status = hbt.user()
         pprint(status['stats'])
 
-    # GET tasks:habit
+    # GET/POST habits
     elif args['habits']:
-        habits = hbt.user.tasks(type='habit')
-        cache('habits', habits)
-        pprint([e['text'] for e in habits])
+        if args['up']:
+            habits = from_cache('habits')
+            cache_id = int(args['<task-id>'])
+            res = hbt.user.tasks(_id=habits[cache_id]['id'],
+                                 _direction='up', _method='post')
+            print('success!')
+        elif args['down']:
+            habits = from_cache('habits')
+            cache_id = int(args['<task-id>'])
+            res = hbt.user.tasks(_id=habits[cache_id]['id'],
+                                 _direction='down', _method='post')
+            print('success!')
+        else:
+            habits = hbt.user.tasks(type='habit')
+            cache('habits', habits)
+            pprint([e['text'] for e in habits])
 
-    # GET tasks:daily
+    # GET/PUT tasks:daily
     elif args['dailies']:
-        dailies = hbt.user.tasks(type='daily')
-        pprint([e['text'] for e in dailies])
-
-    # POST yay
-    elif args['yay']:
-        habits = from_cache('habits')
-        cache_id = int(args['<tid>'])
-        res = hbt.user.tasks(_id=habits[cache_id]['id'],
-                             _direction='up', _method='post')
-        print('success!')
-        pprint(res)
-
-    # POST doh
-    elif args['doh']:
-        habits = from_cache('habits')
-        cache_id = int(args['<tid>'])
-        res = hbt.user.tasks(_id=habits[cache_id]['id'],
-                             _direction='down', _method='post')
-        pprint(res)
-
-    # TODO PUT done
-    #elif args['done']:
-    #    res = hbt.user.task(_id=args['<tid>'], _method='put', completed=True)
-    #    pprint(res)
-
-    # TODO PUT undo
+        if args['done']:
+            dailies = from_cache('dailies')
+            cache_id = int(args['<task-id>'])
+            # you'd think this'd work, but you don't get rewards!
+            #res = hbt.user.tasks(_id=dailies[cache_id]['id'],
+            #                     _method='put', completed=True)
+            res = hbt.user.tasks(_id=dailies[cache_id]['id'],
+                                 _direction='up', _method='post')
+            print('success!')
+        elif args['undo']:
+            dailies = from_cache('dailies')
+            cache_id = int(args['<task-id>'])
+            res = hbt.user.tasks(_id=dailies[cache_id]['id'],
+                                 _method='put', completed=False)
+            print('success!')
+        else:
+            dailies = hbt.user.tasks(type='daily')
+            cache('dailies', dailies)
+            pprint([e['text'] for e in dailies])
 
     # GET tasks:todo
     elif args['todos']:
-        todos = hbt.user.tasks(type='todo')
-        pprint([e['text'] for e in todos if not e['completed']])
+        if args['done']:
+            todos = from_cache('todos')
+            cache_id = int(args['<task-id>'])
+            # you'd think this'd work, but you don't get rewards!
+            #res = hbt.user.tasks(_id=todos[cache_id]['id'],
+            #                     _method='put', completed=True)
+            res = hbt.user.tasks(_id=todos[cache_id]['id'],
+                                 _direction='up', _method='post')
+            print('marked completed')
+        else:
+            todos = hbt.user.tasks(type='todo')
+            cache('todos', todos)
+            pprint([e['text'] for e in todos if not e['completed']])
 
 
 if __name__ == '__main__':

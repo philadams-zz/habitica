@@ -18,6 +18,7 @@ from . import api
 
 VERSION = 'hrpg version 0.0.4'
 CONFIG_FILE = '~/.hrpgrc'
+CACHE_FILE = '~/.hrpg.cache'
 
 
 def load_config(fname):
@@ -31,7 +32,32 @@ def load_config(fname):
         raise ValueError(err.msg)
     except KeyError as err:
         raise KeyError('Missing config key,value in %s\n' % fname)
-    raise config
+    return config
+
+
+def cache(key, data):
+    """cache (short term!) data in file, accessible at key"""
+    cached = {}
+    try:
+        cached = json.load(open(os.path.expanduser(CACHE_FILE), 'r'))
+    except IOError as err:
+        pass  # the cache file might not exist, and that's okay
+    except ValueError as err:
+        print('Malformed cache file at %s\n' % CONFIG_FILE)
+        raise ValueError(err.msg)
+    cached[key] = data
+    try:
+        out = open(os.path.expanduser(CACHE_FILE), 'w')
+        out.write(json.dumps(cached))
+        out.close()
+    except IOError as err:
+        raise(IOError('Problem writing to cache file at %s\n' % CACHE_FILE))
+
+
+def from_cache(key):
+    """return data from cache file by key.
+    if key doesn't exist, cache error."""
+    return json.load(open(os.path.expanduser(CACHE_FILE), 'r'))[key]
 
 
 def cli():
@@ -39,7 +65,7 @@ def cli():
 
     usage:
       hrpg status
-      hrpg tasks|habit|daily|todo|reward
+      hrpg habit|daily|todo
       hrpg yay <tid>
       hrpg doh <tid>
       hrpg server
@@ -47,7 +73,6 @@ def cli():
     options:
       -h --help          Show this screen
       --version          Show version
-      -i, --interactive  Interactive mode
 
     Subcommands:
       daily         List daily tasks
@@ -55,7 +80,6 @@ def cli():
       done          Mark <tid> task as completed
       habit         List habit tasks
       show          Show task <tid> details
-      reward        List reward tasks
       server        Show status of HabitRPG service
       status        Show HP, XP, and GP for user
       tasks         List user tasks of all types
@@ -89,6 +113,7 @@ def cli():
     # GET tasks:habit
     elif args['habit']:
         habits = hbt.user.tasks(type='habit')
+        cache('habit', habits)
         pprint([e['text'] for e in habits])
 
     # GET tasks:daily
@@ -98,13 +123,18 @@ def cli():
 
     # POST yay
     elif args['yay']:
-        res = hbt.user.tasks(_id=args['<tid>'],
+        habits = from_cache('habit')
+        cache_id = int(args['<tid>'])
+        res = hbt.user.tasks(_id=habits[cache_id]['id'],
                              _direction='up', _method='post')
+        print('success!')
         pprint(res)
 
     # POST doh
     elif args['doh']:
-        res = hbt.user.tasks(_id=args['<tid>'],
+        habits = from_cache('habit')
+        cache_id = int(args['<tid>'])
+        res = hbt.user.tasks(_id=habits[cache_id]['id'],
                              _direction='down', _method='post')
         pprint(res)
 

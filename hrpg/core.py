@@ -80,6 +80,7 @@ def cli():
       hrpg dailies done <task-id>
       hrpg dailies undo <task-id>
       hrpg todos done <task-id>
+      hrpg todos add <task>
       hrpg server
       hrpg clear-cache
 
@@ -88,17 +89,18 @@ def cli():
       --version          Show version
 
     Subcommands:
-      status               Show HP, XP, and GP for user
-      habits               List habit tasks
-      habits up <task-id>  Up (+) habit <task-id>
+      status                 Show HP, XP, and GP for user
+      habits                 List habit tasks
+      habits up <task-id>    Up (+) habit <task-id>
       habits down <task-id>  Up (+) habit <task-id>
-      dailies              List daily tasks
-      dailies done         Mark daily <task-id> complete
-      dailies undo         Mark daily <task-id> incomplete
-      todos                List todo tasks
-      todos done <task-id> Mark todo <task-id> completed
-      server               Show status of HabitRPG service
-      clear-cache          Wipe out local (home dir) cache
+      dailies                List daily tasks
+      dailies done           Mark daily <task-id> complete
+      dailies undo           Mark daily <task-id> incomplete
+      todos                  List todo tasks
+      todos done <task-id>   Mark todo <task-id> completed
+      todos add <task>       Add todo with description <task>
+      server                 Show status of HabitRPG service
+      clear-cache            Wipe out local (home dir) cache
     """
 
     # load config and set auth
@@ -178,7 +180,11 @@ def cli():
             #                     _method='put', completed=True)
             res = hbt.user.tasks(_id=todos[cache_id]['id'],
                                  _direction='up', _method='post')
-            print('marked completed')
+            print('marked complete')
+        elif args['add']:
+            res = hbt.user.tasks(type='todo', text=args['<task>'],
+                                 _method='post')
+            print('added new todo')
         else:
             todos = hbt.user.tasks(type='todo')
             cache('todos', todos)

@@ -65,7 +65,7 @@ def cli():
 
     usage:
       hrpg status
-      hrpg habit|daily|todo
+      hrpg habits|dailies|todos
       hrpg yay <tid>
       hrpg doh <tid>
       hrpg server
@@ -75,15 +75,14 @@ def cli():
       --version          Show version
 
     Subcommands:
-      daily         List daily tasks
+      dailies       List daily tasks
       doh           Down (-) habit <tid>
       done          Mark <tid> task as completed
-      habit         List habit tasks
+      habits        List habit tasks
       show          Show task <tid> details
       server        Show status of HabitRPG service
       status        Show HP, XP, and GP for user
-      tasks         List user tasks of all types
-      todo          List todo tasks
+      todos         List todo tasks
       undo          Mark <tid> task as incomplete
       yay           Up (+) habit <tid>
     """
@@ -111,19 +110,19 @@ def cli():
         pprint(status['stats'])
 
     # GET tasks:habit
-    elif args['habit']:
+    elif args['habits']:
         habits = hbt.user.tasks(type='habit')
-        cache('habit', habits)
+        cache('habits', habits)
         pprint([e['text'] for e in habits])
 
     # GET tasks:daily
-    elif args['daily']:
+    elif args['dailies']:
         dailies = hbt.user.tasks(type='daily')
         pprint([e['text'] for e in dailies])
 
     # POST yay
     elif args['yay']:
-        habits = from_cache('habit')
+        habits = from_cache('habits')
         cache_id = int(args['<tid>'])
         res = hbt.user.tasks(_id=habits[cache_id]['id'],
                              _direction='up', _method='post')
@@ -132,7 +131,7 @@ def cli():
 
     # POST doh
     elif args['doh']:
-        habits = from_cache('habit')
+        habits = from_cache('habits')
         cache_id = int(args['<tid>'])
         res = hbt.user.tasks(_id=habits[cache_id]['id'],
                              _direction='down', _method='post')
@@ -146,7 +145,7 @@ def cli():
     # TODO PUT undo
 
     # GET tasks:todo
-    elif args['todo']:
+    elif args['todos']:
         todos = hbt.user.tasks(type='todo')
         pprint([e['text'] for e in todos if not e['completed']])
 

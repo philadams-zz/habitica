@@ -13,7 +13,7 @@ import json
 
 import requests
 
-API_URI_BASE = 'https://habitrpg.com/api/v1'
+API_URI_BASE = 'https://habitrpg.com/api/v2'
 API_CONTENT_TYPE = 'application/json'
 
 

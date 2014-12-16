@@ -1,0 +1,13 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+try:
+    import hrpg
+except ImportError:
+    import sys
+    import os
+    sys.path.insert(0, os.path.abspath('..'))
+    import hrpg
+
+if __name__ == '__main__':
+    hrpg.cli()

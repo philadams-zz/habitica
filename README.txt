@@ -30,7 +30,6 @@ future
 ------
 
 - update this README to actually be useful
-- release 0.0.2 on pypi
 - have the cache die after some short amount of time
 
 - error handling (e.g. when local cache not around)

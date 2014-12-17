@@ -2,3 +2,4 @@ v0.0.1, 2013-07-23 -- Initial release.
 v0.0.2, 2013-07-23 -- Interface spec and stubs.
 v0.0.3, 2013-07-23 -- Stuffs.
 v0.0.4, 2013-10-04 -- Abstracted and robust api methods.
+v0.0.5, 2014-12-15 -- All r/w functionality for habits, dailies, and todos.

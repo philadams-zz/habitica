@@ -67,7 +67,7 @@ class HRPG(object):
             res = getattr(requests, method)(uri, headers=self.headers,
                                             params=kwargs)
 
-        print(res.url)  # debug...
+        #print(res.url)  # debug...
         if res.status_code == requests.codes.ok:
             return res.json()
         else:

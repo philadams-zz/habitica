@@ -13,5 +13,8 @@ setup(
     description='Commandline interface to HabitRPG (http://habitrpg.com)',
     long_description=readme,
     packages=['hrpg'],
+    install_requires=[
+        'docopt',
+    ],
     scripts=['bin/hrpg'],
 )

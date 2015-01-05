@@ -111,12 +111,8 @@ def cli():
     # instantiate api service
     hbt = api.HRPG(auth=auth)
 
-    # clear cache
-    if args['clear-cache']:
-        clear_cache()
-
     # GET server status
-    elif args['server']:
+    if args['server']:
         server = hbt.status()
         pprint(server)
 

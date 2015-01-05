@@ -7,15 +7,14 @@ Phil Adams http://philadams.net
 hrpg: commandline interface for http://habitrpg.com
 http://github.com/philadams/hrpg
 
-TODO: pretty format task-ids
-TODO: handle ranges and lists for done/undone
+TODO: handle ranges and lists for done/undone (e.g. tasks done 1,2,4-8,11)
+TODO: add short-cuts (e.g. `hrpg t a 'a new todo'`)
 TODO: figure out cache solution (shelve-json?) and how/when to invalidate
 """
 
 
 import json
 import os
-from collections import defaultdict
 from bisect import bisect
 from pprint import pprint
 
@@ -81,7 +80,6 @@ def cli():
       hrpg todos done <task-id>
       hrpg todos add <task>
       hrpg server
-      hrpg clear-cache
 
     options:
       -h --help          Show this screen
@@ -99,7 +97,6 @@ def cli():
       todos done <task-id>   Mark todo <task-id> completed
       todos add <task>       Add todo with description <task>
       server                 Show status of HabitRPG service
-      clear-cache            Wipe out local (home dir) cache
     """
 
     # load config and set auth

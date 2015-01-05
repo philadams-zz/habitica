@@ -16,7 +16,6 @@ TODO: figure out cache solution (shelve-json?) and how/when to invalidate
 import json
 import os
 from bisect import bisect
-from pprint import pprint
 
 from docopt import docopt
 from . import api
@@ -114,12 +113,26 @@ def cli():
     # GET server status
     if args['server']:
         server = hbt.status()
-        pprint(server)
+        if server['status'] == 'up':
+            print('Habit RPG server is up')
+        else:
+            print('Habit RPG server down... or your computer cannot connect')
 
     # GET user
     elif args['status']:
-        status = hbt.user()
-        pprint(status['stats'])
+        user = hbt.user()
+        stats = user['stats']
+        title = 'Level %d %s' % (stats['lvl'], stats['class'].capitalize())
+        health = '%d/%d' % (stats['hp'], stats['maxHealth'])
+        xp = '%d/%d' % (int(stats['exp']), stats['toNextLevel'])
+        mana = '%d/%d' % (int(stats['mp']), stats['maxMP'])
+        len_ljust = max(map(len, ('health', 'xp', 'mana'))) + 1
+        print('-' * len(title))
+        print(title)
+        print('-' * len(title))
+        print('%s %s' % ('Health:'.rjust(len_ljust, ' '), health))
+        print('%s %s' % ('XP:'.rjust(len_ljust, ' '), xp))
+        print('%s %s' % ('Mana:'.rjust(len_ljust, ' '), mana))
 
     # GET/POST habits
     elif args['habits']:
@@ -161,7 +174,7 @@ def cli():
     elif args['todos']:
         tid = get_task_id(args)
         todos = [e for e in hbt.user.tasks(type='todo')
-                if not e['completed']]
+                 if not e['completed']]
         if args['done']:
             hbt.user.tasks(_id=todos[tid]['id'],
                            _direction='up', _method='post')

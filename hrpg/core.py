@@ -16,6 +16,7 @@ TODO: figure out cache solution (shelve-json?) and how/when to invalidate
 import json
 import os
 from collections import defaultdict
+from bisect import bisect
 from pprint import pprint
 
 from docopt import docopt
@@ -24,6 +25,7 @@ from . import api
 VERSION = 'hrpg version 0.0.5'
 CONFIG_FILE = '~/.hrpgrc'
 CACHE_FILE = '~/.hrpg.cache'
+TASK_VALUE_BASE = 0.9747  # http://habitrpg.wikia.com/wiki/Task_Value
 
 
 def load_config(fname):
@@ -57,6 +59,13 @@ def print_task_list(tasks):
     for i, task in enumerate(tasks):
         completed = 'x' if task['completed'] else ' '
         print('[%s] %s %s' % (completed, i + 1, task['text']))
+
+
+def qualitative_task_score_from_value(value):
+    # task value/score info: http://habitrpg.wikia.com/wiki/Task_Value
+    scores = ['*', '**', '***', '****', '*****', '******', '*******']
+    breakpoints = [-20, -10, -1, 1, 5, 10]
+    return scores[bisect(breakpoints, value)]
 
 
 def cli():
@@ -124,19 +133,20 @@ def cli():
         tid = get_task_id(args)
         habits = hbt.user.tasks(type='habit')
         if args['up']:
+            tval = habits[tid]['value']
             hbt.user.tasks(_id=habits[tid]['id'],
                            _direction='up', _method='post')
-            print('incremented!')
+            print('incremented task \'%s\'' % habits[tid]['text'])
+            habits[tid]['value'] = tval + (TASK_VALUE_BASE ** tval)
         elif args['down']:
+            tval = habits[tid]['value']
             hbt.user.tasks(_id=habits[tid]['id'],
                            _direction='down', _method='post')
-            print('decremented!')
-        else:
-            for i, task in enumerate(habits):
-                pprint(task); exit()
-                # TODO figure out strength to show here
-                strength = 'x' if task['completed'] else ' '
-                print('[%s] %s %s' % (completed, i + 1, task['text']))
+            print('decremented task \'%s\'' % habits[tid]['text'])
+            habits[tid]['value'] = tval - (TASK_VALUE_BASE ** tval)
+        for i, task in enumerate(habits):
+            score = qualitative_task_score_from_value(task['value'])
+            print('[%s] %s %s' % (score, i + 1, task['text']))
 
     # GET/PUT tasks:daily
     elif args['dailies']:

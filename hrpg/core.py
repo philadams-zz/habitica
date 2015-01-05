@@ -145,15 +145,14 @@ def cli():
         if args['done']:
             hbt.user.tasks(_id=dailies[tid]['id'],
                            _direction='up', _method='post')
-            print('success!')
+            print('marked daily \'%s\' completed' % dailies[tid]['text'])
+            dailies[tid]['completed'] = True
         elif args['undo']:
             hbt.user.tasks(_id=dailies[tid]['id'],
                            _method='put', completed=False)
-            print('success!')
-        else:
-            for i, task in enumerate(dailies):
-                completed = 'x' if task['completed'] else ' '
-                print('[%s] %s %s' % (completed, i + 1, task['text']))
+            print('marked daily \'%s\' incomplete' % dailies[tid]['text'])
+            dailies[tid]['completed'] = False
+        print_task_list(dailies)
 
     # GET tasks:todo
     elif args['todos']:

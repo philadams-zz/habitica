@@ -1,6 +1,8 @@
-from distutils.core import setup
+# TODO:phil switch to using setuptools!
 
-with open('README.txt') as f:
+from setuptools import setup, find_packages
+
+with open('README.md') as f:
     readme = f.read()
 
 setup(
@@ -12,6 +14,6 @@ setup(
     license='LICENSE.txt',
     description='Commandline interface to HabitRPG (http://habitrpg.com)',
     long_description=readme,
-    packages=['hrpg'],
+    packages=find_packages(exclude=('dist', 'tests')),
     scripts=['bin/hrpg'],
 )

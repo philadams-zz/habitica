@@ -20,7 +20,7 @@ from bisect import bisect
 from docopt import docopt
 from . import api
 
-VERSION = 'hrpg version 0.0.5'
+VERSION = 'hrpg version 0.0.6'
 CONFIG_FILE = '~/.hrpgrc'
 CACHE_FILE = '~/.hrpg.cache'
 TASK_VALUE_BASE = 0.9747  # http://habitrpg.wikia.com/wiki/Task_Value

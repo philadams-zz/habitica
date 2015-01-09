@@ -77,7 +77,7 @@ def cli():
       hrpg dailies done <task-id>
       hrpg dailies undo <task-id>
       hrpg todos done <task-id>
-      hrpg todos add <task>
+      hrpg todos add <task>...
       hrpg server
 
     options:
@@ -181,7 +181,7 @@ def cli():
             print('marked todo \'%s\' complete' % todos[tid]['text'])
             del(todos[tid])
         elif args['add']:
-            ttext = args['<task>']
+            ttext = ' '.join(args['<task>'])
             hbt.user.tasks(type='todo', text=ttext,
                            _method='post')
             todos.insert(0, {'completed': False, 'text': ttext})

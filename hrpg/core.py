@@ -16,6 +16,7 @@ TODO: figure out cache solution (shelve-json?) and how/when to invalidate
 import json
 import os
 from bisect import bisect
+from time import sleep
 
 from docopt import docopt
 from . import api
@@ -24,6 +25,7 @@ VERSION = 'hrpg version 0.0.7'
 CONFIG_FILE = '~/.hrpgrc'
 CACHE_FILE = '~/.hrpg.cache'
 TASK_VALUE_BASE = 0.9747  # http://habitrpg.wikia.com/wiki/Task_Value
+HRPG_REQUEST_WAIT_TIME = 0.5  # time to pause between concurrent requests
 
 
 def load_config(fname):
@@ -49,8 +51,29 @@ def clear_cache():
     print('cache file (%s) deleted' % CACHE_FILE)
 
 
-def get_task_id(args, key='<task-id>'):
-    return int(args[key]) - 1 if args[key] is not None else -1
+def get_task_ids(args, key='<task-id>'):
+    """
+    handle task-id formats such as:
+        hrpg todos done 3
+        hrpg todos done 1,2,3
+        hrpg todos done 2 3
+        hrpg todos done 1-3,4
+    """
+    task_ids = []
+    for raw_arg in args[key]:
+        for bit in raw_arg.split(','):
+            if '-' in bit:
+                start, stop = [int(e) for e in bit.split('-')]
+                task_ids.extend(range(start, stop + 1))
+            else:
+                task_ids.append(int(bit))
+    return [e - 1 for e in set(task_ids)]
+
+
+def updated_task_list(tasks, tids):
+    for tid in sorted(tids, reverse=True):
+        del(tasks[tid])
+    return tasks
 
 
 def print_task_list(tasks):
@@ -76,7 +99,7 @@ def cli():
       hrpg habits down <task-id>
       hrpg dailies done <task-id>
       hrpg dailies undo <task-id>
-      hrpg todos done <task-id>
+      hrpg todos done <task-id>...
       hrpg todos add <task>...
       hrpg server
 
@@ -136,50 +159,60 @@ def cli():
 
     # GET/POST habits
     elif args['habits']:
-        tid = get_task_id(args)
+        tids = get_task_ids(args)
         habits = hbt.user.tasks(type='habit')
         if args['up']:
-            tval = habits[tid]['value']
-            hbt.user.tasks(_id=habits[tid]['id'],
-                           _direction='up', _method='post')
-            print('incremented task \'%s\'' % habits[tid]['text'])
-            habits[tid]['value'] = tval + (TASK_VALUE_BASE ** tval)
+            for tid in tids:
+                tval = habits[tid]['value']
+                hbt.user.tasks(_id=habits[tid]['id'],
+                               _direction='up', _method='post')
+                print('incremented task \'%s\'' % habits[tid]['text'])
+                habits[tid]['value'] = tval + (TASK_VALUE_BASE ** tval)
+                sleep(HRPG_REQUEST_WAIT_TIME)
         elif args['down']:
-            tval = habits[tid]['value']
-            hbt.user.tasks(_id=habits[tid]['id'],
-                           _direction='down', _method='post')
-            print('decremented task \'%s\'' % habits[tid]['text'])
-            habits[tid]['value'] = tval - (TASK_VALUE_BASE ** tval)
+            for tid in tids:
+                tval = habits[tid]['value']
+                hbt.user.tasks(_id=habits[tid]['id'],
+                               _direction='down', _method='post')
+                print('decremented task \'%s\'' % habits[tid]['text'])
+                habits[tid]['value'] = tval - (TASK_VALUE_BASE ** tval)
+                sleep(HRPG_REQUEST_WAIT_TIME)
         for i, task in enumerate(habits):
             score = qualitative_task_score_from_value(task['value'])
             print('[%s] %s %s' % (score, i + 1, task['text']))
 
     # GET/PUT tasks:daily
     elif args['dailies']:
-        tid = get_task_id(args)
+        tids = get_task_ids(args)
         dailies = hbt.user.tasks(type='daily')
         if args['done']:
-            hbt.user.tasks(_id=dailies[tid]['id'],
-                           _direction='up', _method='post')
-            print('marked daily \'%s\' completed' % dailies[tid]['text'])
-            dailies[tid]['completed'] = True
+            for tid in tids:
+                hbt.user.tasks(_id=dailies[tid]['id'],
+                               _direction='up', _method='post')
+                print('marked daily \'%s\' completed' % dailies[tid]['text'])
+                dailies[tid]['completed'] = True
+                sleep(HRPG_REQUEST_WAIT_TIME)
         elif args['undo']:
-            hbt.user.tasks(_id=dailies[tid]['id'],
-                           _method='put', completed=False)
-            print('marked daily \'%s\' incomplete' % dailies[tid]['text'])
-            dailies[tid]['completed'] = False
+            for tid in tids:
+                hbt.user.tasks(_id=dailies[tid]['id'],
+                               _method='put', completed=False)
+                print('marked daily \'%s\' incomplete' % dailies[tid]['text'])
+                dailies[tid]['completed'] = False
+                sleep(HRPG_REQUEST_WAIT_TIME)
         print_task_list(dailies)
 
     # GET tasks:todo
     elif args['todos']:
-        tid = get_task_id(args)
+        tids = get_task_ids(args)
         todos = [e for e in hbt.user.tasks(type='todo')
                  if not e['completed']]
         if args['done']:
-            hbt.user.tasks(_id=todos[tid]['id'],
-                           _direction='up', _method='post')
-            print('marked todo \'%s\' complete' % todos[tid]['text'])
-            del(todos[tid])
+            for tid in tids:
+                hbt.user.tasks(_id=todos[tid]['id'],
+                               _direction='up', _method='post')
+                print('marked todo \'%s\' complete' % todos[tid]['text'])
+                sleep(HRPG_REQUEST_WAIT_TIME)
+            todos = updated_task_list(todos, tids)
         elif args['add']:
             ttext = ' '.join(args['<task>'])
             hbt.user.tasks(type='todo', text=ttext,

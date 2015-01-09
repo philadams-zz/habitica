@@ -7,7 +7,6 @@ Phil Adams http://philadams.net
 hrpg: commandline interface for http://habitrpg.com
 http://github.com/philadams/hrpg
 
-TODO: handle ranges and lists for done/undone (e.g. tasks done 1,2,4-8,11)
 TODO: add short-cuts (e.g. `hrpg t a 'a new todo'`)
 TODO: figure out cache solution (shelve-json?) and how/when to invalidate
 """
@@ -21,7 +20,7 @@ from time import sleep
 from docopt import docopt
 from . import api
 
-VERSION = 'hrpg version 0.0.7'
+VERSION = 'hrpg version 0.0.8'
 CONFIG_FILE = '~/.hrpgrc'
 CACHE_FILE = '~/.hrpg.cache'
 TASK_VALUE_BASE = 0.9747  # http://habitrpg.wikia.com/wiki/Task_Value

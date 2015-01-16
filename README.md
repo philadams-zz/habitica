@@ -29,6 +29,38 @@ What's my character's status?
     XP: 471/1720
     Mana: 4/103
 
+Show me my todo items:
+
+    > hrpg todos
+    [ ]  1 update hrpg README with example instructions
+    [ ]  2 vacuum the car
+    [ ]  3 read Bell and Jofish "Designing technology for domestic spaces"
+    [ ]  4 order new contact lenses
+    [ ]  5 complete Keppi project report and share with Geri
+    [ ]  6 set up dinner with friends at Agava for Saturday night
+
+Complete a todo:
+
+    > hrpg todos done 1
+    marked todo 'update hrpg README with example instructions' complete
+    [ ] 1 vacuum the car
+    [ ] 2 read Bell and Jofish "Designing technology for domestic spaces"
+    [ ] 3 order new contact lenses
+    [ ] 4 complete Keppi project report and share with Geri
+    [ ] 5 make reservation at Agava for Saturday night
+
+Complete multiple todos. All `done`, `undo`, `up`, `down` commands can take 1
+or more tasks as arguments, using either comma-separated lists or ranges or
+both:
+
+    > hrpg todos done 1,3-5
+    marked todo 'update hrpg README with example instructions' complete
+    marked todo 'vacuum the car' complete
+    marked todo 'order new contact lenses' complete
+    marked todo 'complete Keppi project report and share with Geri' complete
+    marked todo 'make reservation at Agava for Saturday night' complete
+    [ ] 1 read Bell and Jofish "Designing technology for domestic spaces"
+
 Show me my habits, and how well I'm doing with each:
 
     > hrpg habits
@@ -36,10 +68,11 @@ Show me my habits, and how well I'm doing with each:
     [****] 2 drink water
     [******] 3 encourage others
 
-Record improvement with a habit:
+Record improvement with some habits:
 
-    > hrpg habits up 2
+    > hrpg habits up 2,3
     incremented task 'drink water'
+    incremented task 'encourage others'
     [*******] 1 commit code
     [****] 2 drink water
     [******] 3 encourage others
@@ -58,20 +91,6 @@ Complete a daily task:
     [x] 1 pushups (5x20)
     [ ] 2 clean dishes before bed
     [x] 3 2x90mins writing
-
-Show me my todo items:
-
-    > hrpg todos
-    [ ] update hrpg README with example instructions
-    [ ] vacuum my car
-    [ ] read Bell and Jofish "Designing technology for domestic spaces"
-
-Complete a todo:
-
-    > hrpg todos done 1
-    marked todo 'update hrpg README with example instructions' complete
-    [ ] vacuum my car
-    [ ] read Bell and Jofish "Designing technology for domestic spaces"
 
 Is the HabitRPG server up?
 

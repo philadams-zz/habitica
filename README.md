@@ -61,6 +61,13 @@ both:
     marked todo 'make reservation at Agava for Saturday night' complete
     [ ] 1 read Bell and Jofish "Designing technology for domestic spaces"
 
+Add a new (hard!) todo. By default `--difficulty=easy`:
+
+    > hrpg todos add finish dissertation --difficulty=hard
+    added new todo 'finish dissertation'
+    [ ] 1 finish dissertation
+    [ ] 2 read Bell and Jofish "Designing technology for domestic spaces"
+
 Show me my habits, and how well I'm doing with each:
 
     > hrpg habits

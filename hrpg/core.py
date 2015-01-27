@@ -7,7 +7,6 @@ Phil Adams http://philadams.net
 hrpg: commandline interface for http://habitrpg.com
 http://github.com/philadams/hrpg
 
-TODO: add short-cuts (e.g. `hrpg t a 'a new todo'`)
 TODO: figure out cache solution (shelve-json?) and how/when to invalidate
 """
 
@@ -28,6 +27,9 @@ CACHE_FILE = '~/.hrpg.cache'
 TASK_VALUE_BASE = 0.9747  # http://habitrpg.wikia.com/wiki/Task_Value
 HRPG_REQUEST_WAIT_TIME = 0.5  # time to pause between concurrent requests
 HRPG_TASKS_PAGE = 'https://habitrpg.com/#/tasks'
+PRIORITY = {'easy': 1,
+            'medium': 1.5,
+            'hard': 2}  # https://trello.com/c/4C8w1z5h/17-task-difficulty-settings-v2-priority-multiplier
 
 
 def load_config(fname):
@@ -102,19 +104,20 @@ def cli():
       hrpg dailies done <task-id>
       hrpg dailies undo <task-id>
       hrpg todos done <task-id>...
-      hrpg todos add <task>...
+      hrpg todos add <task>... [--difficulty=<d>]
       hrpg server
       hrpg home
 
     options:
-      -h --help          Show this screen
-      --version          Show version
+      -h --help         Show this screen
+      --version         Show version
+      --difficulty=<d>  (easy | medium | hard) [default: easy]
 
     Subcommands:
       status                 Show HP, XP, and GP for user
       habits                 List habit tasks
       habits up <task-id>    Up (+) habit <task-id>
-      habits down <task-id>  Up (+) habit <task-id>
+      habits down <task-id>  Down (-) habit <task-id>
       dailies                List daily tasks
       dailies done           Mark daily <task-id> complete
       dailies undo           Mark daily <task-id> incomplete
@@ -122,9 +125,8 @@ def cli():
       todos done <task-id>   Mark todo <task-id> completed
       todos add <task>       Add todo with description <task>
       server                 Show status of HabitRPG service
-      home                   Open HabitRPG tasks page in default browser
+      home                   Open tasks page in default browser
     """
-    print('develop is on!')
 
     # load config and set auth
     config = load_config(CONFIG_FILE)
@@ -225,7 +227,9 @@ def cli():
             todos = updated_task_list(todos, tids)
         elif args['add']:
             ttext = ' '.join(args['<task>'])
-            hbt.user.tasks(type='todo', text=ttext,
+            hbt.user.tasks(type='todo',
+                           text=ttext,
+                           priority=PRIORITY[args['--difficulty']],
                            _method='post')
             todos.insert(0, {'completed': False, 'text': ttext})
             print('added new todo \'%s\'' % ttext)

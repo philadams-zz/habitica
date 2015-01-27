@@ -111,9 +111,10 @@ Via `hrpg --help`:
           hrpg habits down <task-id>
           hrpg dailies done <task-id>
           hrpg dailies undo <task-id>
-          hrpg todos done <task-id>
-          hrpg todos add <task>
+          hrpg todos done <task-id>...
+          hrpg todos add <task>...
           hrpg server
+          hrpg home
 
         options:
           -h --help          Show this screen
@@ -131,6 +132,7 @@ Via `hrpg --help`:
           todos done <task-id>   Mark todo <task-id> completed
           todos add <task>       Add todo with description <task>
           server                 Show status of HabitRPG service
+          home                   Open HabitRPG tasks page in default browser
 
 thanks
 ------

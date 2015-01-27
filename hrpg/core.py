@@ -12,12 +12,14 @@ TODO: figure out cache solution (shelve-json?) and how/when to invalidate
 """
 
 
+from bisect import bisect
 import json
 import os
-from bisect import bisect
 from time import sleep
+from webbrowser import open_new_tab
 
 from docopt import docopt
+
 from . import api
 
 VERSION = 'hrpg version 0.0.8'
@@ -25,6 +27,7 @@ CONFIG_FILE = '~/.hrpgrc'
 CACHE_FILE = '~/.hrpg.cache'
 TASK_VALUE_BASE = 0.9747  # http://habitrpg.wikia.com/wiki/Task_Value
 HRPG_REQUEST_WAIT_TIME = 0.5  # time to pause between concurrent requests
+HRPG_TASKS_PAGE = 'https://habitrpg.com/#/tasks'
 
 
 def load_config(fname):
@@ -101,6 +104,7 @@ def cli():
       hrpg todos done <task-id>...
       hrpg todos add <task>...
       hrpg server
+      hrpg home
 
     options:
       -h --help          Show this screen
@@ -118,7 +122,9 @@ def cli():
       todos done <task-id>   Mark todo <task-id> completed
       todos add <task>       Add todo with description <task>
       server                 Show status of HabitRPG service
+      home                   Open HabitRPG tasks page in default browser
     """
+    print('develop is on!')
 
     # load config and set auth
     config = load_config(CONFIG_FILE)
@@ -139,6 +145,11 @@ def cli():
             print('Habit RPG server is up')
         else:
             print('Habit RPG server down... or your computer cannot connect')
+
+    # open HOME
+    elif args['home']:
+        print('Opening %s' % HRPG_TASKS_PAGE)
+        open_new_tab(HRPG_TASKS_PAGE)
 
     # GET user
     elif args['status']:

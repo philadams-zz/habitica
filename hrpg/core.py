@@ -16,10 +16,12 @@ import json
 import os
 from time import sleep
 from webbrowser import open_new_tab
+from pprint import pprint
 
 from docopt import docopt
 
 from . import api
+
 
 VERSION = 'hrpg version 0.0.9'
 CONFIG_FILE = '~/.hrpgrc'
@@ -157,17 +159,24 @@ def cli():
     elif args['status']:
         user = hbt.user()
         stats = user['stats']
+        items = user['items']
+        food_count = sum(items['food'].values())
+        #pprint(items)
         title = 'Level %d %s' % (stats['lvl'], stats['class'].capitalize())
         health = '%d/%d' % (stats['hp'], stats['maxHealth'])
         xp = '%d/%d' % (int(stats['exp']), stats['toNextLevel'])
         mana = '%d/%d' % (int(stats['mp']), stats['maxMP'])
-        len_ljust = max(map(len, ('health', 'xp', 'mana'))) + 1
+        pet = '%s (%d food items)' % (items['currentPet'], food_count)
+        mount = items['currentMount']
+        len_ljust = max(map(len, ('health', 'xp', 'mana', 'pet', 'mount'))) + 1
         print('-' * len(title))
         print(title)
         print('-' * len(title))
         print('%s %s' % ('Health:'.rjust(len_ljust, ' '), health))
         print('%s %s' % ('XP:'.rjust(len_ljust, ' '), xp))
         print('%s %s' % ('Mana:'.rjust(len_ljust, ' '), mana))
+        print('%s %s' % ('Pet:'.rjust(len_ljust, ' '), pet))
+        print('%s %s' % ('Mount:'.rjust(len_ljust, ' '), mount))
 
     # GET/POST habits
     elif args['habits']:

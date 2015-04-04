@@ -23,11 +23,13 @@ What's my character's status?
 
     > hrpg status
     --------------
-    Level 62 Rogue
+    Level 83 Rogue
     --------------
-    Health: 49/50
-    XP: 471/1720
-    Mana: 4/103
+    Health: 50/50
+    XP: 904/2690
+    Mana: 133/218
+    Pet: Gryphon-Base (11 food items)
+    Mount: FlyingPig-Base
 
 Show me my todo items:
 
@@ -128,7 +130,7 @@ Via `hrpg --help`:
           --version          Show version
 
         Subcommands:
-          status                 Show HP, XP, and GP for user
+          status                 Show HP, XP, GP, and more for user
           habits                 List habit tasks
           habits up <task-id>    Up (+) habit <task-id>
           habits down <task-id>  Up (+) habit <task-id>

@@ -115,7 +115,7 @@ def cli():
       --difficulty=<d>  (easy | medium | hard) [default: easy]
 
     Subcommands:
-      status                 Show HP, XP, and GP for user
+      status                 Show HP, XP, GP, and more for user
       habits                 List habit tasks
       habits up <task-id>    Up (+) habit <task-id>
       habits down <task-id>  Down (-) habit <task-id>

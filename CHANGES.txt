@@ -1,9 +1,10 @@
-v0.0.1, 2013-07-23 -- Initial release.
-v0.0.2, 2013-07-23 -- Interface spec and stubs.
-v0.0.3, 2013-07-23 -- Stuffs.
-v0.0.4, 2013-10-04 -- Abstracted and robust api methods.
-v0.0.5, 2014-12-15 -- All r/w functionality for habits, dailies, and todos.
-v0.0.6, 2015-01-05 -- Pretty print hrpg output for basic functionality.
-v0.0.7, 2015-01-05 -- Include README.md in distribution.
-v0.0.8, 2015-01-09 -- Support lists and ranges of todoIDs.
-v0.0.9, 2015-01-27 -- Add `home` command and --difficulty flag for new tasks.
+v0.0.1,  2013-07-23 -- Initial release.
+v0.0.2,  2013-07-23 -- Interface spec and stubs.
+v0.0.3,  2013-07-23 -- Stuffs.
+v0.0.4,  2013-10-04 -- Abstracted and robust api methods.
+v0.0.5,  2014-12-15 -- All r/w functionality for habits, dailies, and todos.
+v0.0.6,  2015-01-05 -- Pretty print hrpg output for basic functionality.
+v0.0.7,  2015-01-05 -- Include README.md in distribution.
+v0.0.8,  2015-01-09 -- Support lists and ranges of todoIDs.
+v0.0.9,  2015-01-27 -- Add `home` command and --difficulty flag for new tasks.
+v0.0.10, 2015-04-04 -- Add pet, mount, and food item count to `hrpg status`.

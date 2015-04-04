@@ -16,14 +16,13 @@ import json
 import os
 from time import sleep
 from webbrowser import open_new_tab
-from pprint import pprint
 
 from docopt import docopt
 
 from . import api
 
 
-VERSION = 'hrpg version 0.0.9'
+VERSION = 'hrpg version 0.0.10'
 CONFIG_FILE = '~/.hrpgrc'
 CACHE_FILE = '~/.hrpg.cache'
 TASK_VALUE_BASE = 0.9747  # http://habitrpg.wikia.com/wiki/Task_Value
@@ -161,7 +160,9 @@ def cli():
         stats = user['stats']
         items = user['items']
         food_count = sum(items['food'].values())
-        #pprint(items)
+        party = user['party']
+        quest = party['quest']['key']
+        quest_progress = party['quest']['progress']
         title = 'Level %d %s' % (stats['lvl'], stats['class'].capitalize())
         health = '%d/%d' % (stats['hp'], stats['maxHealth'])
         xp = '%d/%d' % (int(stats['exp']), stats['toNextLevel'])

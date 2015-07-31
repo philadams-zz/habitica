@@ -4,8 +4,8 @@
 """
 Phil Adams http://philadams.net
 
-hrpg: commandline interface for http://habitrpg.com
-http://github.com/philadams/hrpg
+habitica: commandline interface for http://habitica.com
+http://github.com/philadams/habitica
 
 TODO: figure out cache solution (shelve-json?) and how/when to invalidate
 """
@@ -22,12 +22,12 @@ from docopt import docopt
 from . import api
 
 
-VERSION = 'hrpg version 0.0.10'
-CONFIG_FILE = '~/.hrpgrc'
-CACHE_FILE = '~/.hrpg.cache'
-TASK_VALUE_BASE = 0.9747  # http://habitrpg.wikia.com/wiki/Task_Value
-HRPG_REQUEST_WAIT_TIME = 0.5  # time to pause between concurrent requests
-HRPG_TASKS_PAGE = 'https://habitrpg.com/#/tasks'
+VERSION = 'habitica version 0.0.10'
+CONFIG_FILE = '~/.habiticarc'
+CACHE_FILE = '~/.habitica.cache'
+TASK_VALUE_BASE = 0.9747  # http://habitica.wikia.com/wiki/Task_Value
+HABITICA_REQUEST_WAIT_TIME = 0.5  # time to pause between concurrent requests
+HABITICA_TASKS_PAGE = 'https://habitica.com/#/tasks'
 PRIORITY = {'easy': 1,
             'medium': 1.5,
             'hard': 2}  # https://trello.com/c/4C8w1z5h/17-task-difficulty-settings-v2-priority-multiplier
@@ -59,10 +59,10 @@ def clear_cache():
 def get_task_ids(args, key='<task-id>'):
     """
     handle task-id formats such as:
-        hrpg todos done 3
-        hrpg todos done 1,2,3
-        hrpg todos done 2 3
-        hrpg todos done 1-3,4
+        habitica todos done 3
+        habitica todos done 1,2,3
+        habitica todos done 2 3
+        habitica todos done 1-3,4
     """
     task_ids = []
     for raw_arg in args[key]:
@@ -88,26 +88,26 @@ def print_task_list(tasks):
 
 
 def qualitative_task_score_from_value(value):
-    # task value/score info: http://habitrpg.wikia.com/wiki/Task_Value
+    # task value/score info: http://habitica.wikia.com/wiki/Task_Value
     scores = ['*', '**', '***', '****', '*****', '******', '*******']
     breakpoints = [-20, -10, -1, 1, 5, 10]
     return scores[bisect(breakpoints, value)]
 
 
 def cli():
-    """HabitRPG command-line interface.
+    """Habitica command-line interface.
 
     usage:
-      hrpg status
-      hrpg habits|dailies|todos
-      hrpg habits up <task-id>
-      hrpg habits down <task-id>
-      hrpg dailies done <task-id>
-      hrpg dailies undo <task-id>
-      hrpg todos done <task-id>...
-      hrpg todos add <task>... [--difficulty=<d>]
-      hrpg server
-      hrpg home
+      habitica status
+      habitica habits|dailies|todos
+      habitica habits up <task-id>
+      habitica habits down <task-id>
+      habitica dailies done <task-id>
+      habitica dailies undo <task-id>
+      habitica todos done <task-id>...
+      habitica todos add <task>... [--difficulty=<d>]
+      habitica server
+      habitica home
 
     options:
       -h --help         Show this screen
@@ -125,7 +125,7 @@ def cli():
       todos                  List todo tasks
       todos done <task-id>   Mark todo <task-id> completed
       todos add <task>       Add todo with description <task>
-      server                 Show status of HabitRPG service
+      server                 Show status of Habitica service
       home                   Open tasks page in default browser
     """
 
@@ -139,7 +139,7 @@ def cli():
     args = docopt(cli.__doc__, version=VERSION)
 
     # instantiate api service
-    hbt = api.HRPG(auth=auth)
+    hbt = api.Habitica(auth=auth)
 
     # GET server status
     if args['server']:
@@ -151,8 +151,8 @@ def cli():
 
     # open HOME
     elif args['home']:
-        print('Opening %s' % HRPG_TASKS_PAGE)
-        open_new_tab(HRPG_TASKS_PAGE)
+        print('Opening %s' % HABITICA_TASKS_PAGE)
+        open_new_tab(HABITICA_TASKS_PAGE)
 
     # GET user
     elif args['status']:
@@ -190,7 +190,7 @@ def cli():
                                _direction='up', _method='post')
                 print('incremented task \'%s\'' % habits[tid]['text'])
                 habits[tid]['value'] = tval + (TASK_VALUE_BASE ** tval)
-                sleep(HRPG_REQUEST_WAIT_TIME)
+                sleep(HABITICA_REQUEST_WAIT_TIME)
         elif args['down']:
             for tid in tids:
                 tval = habits[tid]['value']
@@ -198,7 +198,7 @@ def cli():
                                _direction='down', _method='post')
                 print('decremented task \'%s\'' % habits[tid]['text'])
                 habits[tid]['value'] = tval - (TASK_VALUE_BASE ** tval)
-                sleep(HRPG_REQUEST_WAIT_TIME)
+                sleep(HABITICA_REQUEST_WAIT_TIME)
         for i, task in enumerate(habits):
             score = qualitative_task_score_from_value(task['value'])
             print('[%s] %s %s' % (score, i + 1, task['text']))
@@ -213,14 +213,14 @@ def cli():
                                _direction='up', _method='post')
                 print('marked daily \'%s\' completed' % dailies[tid]['text'])
                 dailies[tid]['completed'] = True
-                sleep(HRPG_REQUEST_WAIT_TIME)
+                sleep(HABITICA_REQUEST_WAIT_TIME)
         elif args['undo']:
             for tid in tids:
                 hbt.user.tasks(_id=dailies[tid]['id'],
                                _method='put', completed=False)
                 print('marked daily \'%s\' incomplete' % dailies[tid]['text'])
                 dailies[tid]['completed'] = False
-                sleep(HRPG_REQUEST_WAIT_TIME)
+                sleep(HABITICA_REQUEST_WAIT_TIME)
         print_task_list(dailies)
 
     # GET tasks:todo
@@ -233,7 +233,7 @@ def cli():
                 hbt.user.tasks(_id=todos[tid]['id'],
                                _direction='up', _method='post')
                 print('marked todo \'%s\' complete' % todos[tid]['text'])
-                sleep(HRPG_REQUEST_WAIT_TIME)
+                sleep(HABITICA_REQUEST_WAIT_TIME)
             todos = updated_task_list(todos, tids)
         elif args['add']:
             ttext = ' '.join(args['<task>'])

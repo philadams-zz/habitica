@@ -4,8 +4,8 @@
 """
 Phil Adams http://philadams.net
 
-Python wrapper around the Habit RPG (http://habitrpg.com) API
-http://github.com/philadams/hrpg
+Python wrapper around the Habitica (http://habitica.com) API
+http://github.com/philadams/habitica
 """
 
 
@@ -13,11 +13,11 @@ import json
 
 import requests
 
-API_URI_BASE = 'https://habitrpg.com/api/v2'
+API_URI_BASE = 'https://habitica.com/api/v2'
 API_CONTENT_TYPE = 'application/json'
 
 
-class HRPG(object):
+class Habitica(object):
     """
     A minimalist Habit RPG API class.
     """
@@ -34,14 +34,14 @@ class HRPG(object):
             return object.__getattr__(self, m)
         except AttributeError:
             if not self.resource:
-                return HRPG(auth=self.auth, resource=m)
+                return Habitica(auth=self.auth, resource=m)
             else:
-                return HRPG(auth=self.auth, resource=self.resource, aspect=m)
+                return Habitica(auth=self.auth, resource=self.resource, aspect=m)
 
     def __call__(self, **kwargs):
         method = kwargs.pop('_method', 'get')
 
-        # build up URL... HRPG's api is the *teeniest* bit annoying
+        # build up URL... Habitica's api is the *teeniest* bit annoying
         # so either i need to find a cleaner way here, or i should
         # get involved in the API itself and... help it.
         if self.aspect:

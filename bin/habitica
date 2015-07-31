@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 try:
-    import hrpg
+    import habitica
 except ImportError:
     import sys
     import os
     sys.path.insert(0, os.path.abspath('..'))
-    import hrpg
+    import habitica
 
 if __name__ == '__main__':
-    hrpg.cli()
+    habitica.cli()

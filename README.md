@@ -1,27 +1,27 @@
-hrpg
-====
+habitica
+========
 
-Two tools for interacting with [HabitRPG](http://habitrpg.com):
+Two tools for interacting with [Habitica](http://habitica.com):
 
-1. Python wrapper for the RESTful Habit RPG api (`hrpg.api`)
-2. Command-line interface with subcommands (e.g. `> hrpg todos`)
+1. Python wrapper for the RESTful Habitica API (`habitica.api`)
+2. Command-line interface with subcommands (e.g. `> habitica todos`)
 
 install
 -------
 
-First `pip install hrpg`. Then, using `hrpgrc.sample.json` as a template,
-you'll want to add your API credentials to an `~/.hrpgrc` file in your home
-directory.
+First `pip install habitica`. Then, using `habiticarc.sample.json` as a
+template, you'll want to add your API credentials to an `~/.habiticarc` file in
+your home directory.
 
-Your userID and API token are available on the [HabitRPG options/setting/api
-page](https://habitrpg.com/#/options/settings/api).
+Your userID and API token are available on the [Habitica options/setting/api
+page](https://habitica.com/#/options/settings/api).
 
 usage
 -----
 
 What's my character's status?
 
-    > hrpg status
+    > habitica status
     --------------
     Level 83 Rogue
     --------------
@@ -33,8 +33,8 @@ What's my character's status?
 
 Show me my todo items:
 
-    > hrpg todos
-    [ ]  1 update hrpg README with example instructions
+    > habitica todos
+    [ ]  1 update habitica README with example instructions
     [ ]  2 vacuum the car
     [ ]  3 read Bell and Jofish "Designing technology for domestic spaces"
     [ ]  4 order new contact lenses
@@ -43,8 +43,8 @@ Show me my todo items:
 
 Complete a todo:
 
-    > hrpg todos done 1
-    marked todo 'update hrpg README with example instructions' complete
+    > habitica todos done 1
+    marked todo 'update habitica README with example instructions' complete
     [ ] 1 vacuum the car
     [ ] 2 read Bell and Jofish "Designing technology for domestic spaces"
     [ ] 3 order new contact lenses
@@ -55,8 +55,8 @@ Complete multiple todos. All `done`, `undo`, `up`, `down` commands can take 1
 or more tasks as arguments, using either comma-separated lists or ranges or
 both:
 
-    > hrpg todos done 1,3-5
-    marked todo 'update hrpg README with example instructions' complete
+    > habitica todos done 1,3-5
+    marked todo 'update habitica README with example instructions' complete
     marked todo 'vacuum the car' complete
     marked todo 'order new contact lenses' complete
     marked todo 'complete Keppi project report and share with Geri' complete
@@ -65,21 +65,21 @@ both:
 
 Add a new (hard!) todo. By default `--difficulty=easy`:
 
-    > hrpg todos add finish dissertation --difficulty=hard
+    > habitica todos add finish dissertation --difficulty=hard
     added new todo 'finish dissertation'
     [ ] 1 finish dissertation
     [ ] 2 read Bell and Jofish "Designing technology for domestic spaces"
 
 Show me my habits, and how well I'm doing with each:
 
-    > hrpg habits
+    > habitica habits
     [*******] 1 commit code
     [****] 2 drink water
     [******] 3 encourage others
 
 Record improvement with some habits:
 
-    > hrpg habits up 2,3
+    > habitica habits up 2,3
     incremented task 'drink water'
     incremented task 'encourage others'
     [*******] 1 commit code
@@ -88,42 +88,42 @@ Record improvement with some habits:
 
 Show me my dailies and each daily's state:
 
-    > hrpg dailies
+    > habitica dailies
     [ ] 1 pushups (5x20)
     [ ] 2 clean dishes before bed
     [x] 3 2x90mins writing
 
 Complete a daily task:
 
-    > hrpg dailies done 1
+    > habitica dailies done 1
     marked daily 'pushups (5x20)' completed
     [x] 1 pushups (5x20)
     [ ] 2 clean dishes before bed
     [x] 3 2x90mins writing
 
-Is the HabitRPG server up?
+Is the Habitica server up?
 
-    > hrpg server
+    > habitica server
     Habit RPG server is up
 
 help
 ----
 
-Via `hrpg --help`:
+Via `habitica --help`:
 
-    HabitRPG command-line interface.
+    Habitica command-line interface.
 
         usage:
-          hrpg status
-          hrpg habits|dailies|todos
-          hrpg habits up <task-id>
-          hrpg habits down <task-id>
-          hrpg dailies done <task-id>
-          hrpg dailies undo <task-id>
-          hrpg todos done <task-id>...
-          hrpg todos add <task>...
-          hrpg server
-          hrpg home
+          habitica status
+          habitica habits|dailies|todos
+          habitica habits up <task-id>
+          habitica habits down <task-id>
+          habitica dailies done <task-id>
+          habitica dailies undo <task-id>
+          habitica todos done <task-id>...
+          habitica todos add <task>...
+          habitica server
+          habitica home
 
         options:
           -h --help          Show this screen
@@ -140,8 +140,8 @@ Via `hrpg --help`:
           todos                  List todo tasks
           todos done <task-id>   Mark todo <task-id> completed
           todos add <task>       Add todo with description <task>
-          server                 Show status of HabitRPG service
-          home                   Open HabitRPG tasks page in default browser
+          server                 Show status of Habitica service
+          home                   Open Habitica tasks page in default browser
 
 thanks
 ------

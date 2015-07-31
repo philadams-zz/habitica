@@ -4,18 +4,18 @@ with open('README.md') as f:
     readme = f.read()
 
 setup(
-    name='hrpg',
-    version='0.0.10',
+    name='habitica',
+    version='0.0.11',
     author='Phil Adams',
     author_email='philadams.net@gmail.com',
-    url='https://github.com/philadams/hrpg',
+    url='https://github.com/philadams/habitica',
     license='LICENSE.txt',
-    description='Commandline interface to HabitRPG (http://habitrpg.com)',
+    description='Commandline interface to Habitica (http://habitica.com)',
     long_description=readme,
     packages=find_packages(exclude=('dist', 'tests')),
     install_requires=[
         'docopt',
         'requests',
     ],
-    scripts=['bin/hrpg'],
+    scripts=['bin/habitica'],
 )

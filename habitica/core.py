@@ -23,7 +23,6 @@ from . import api
 
 
 VERSION = 'habitica version 0.0.10'
-CONFIG_FILE = '~/.habiticarc'
 CACHE_FILE = '~/.habitica.cache'
 TASK_VALUE_BASE = 0.9747  # http://habitica.wikia.com/wiki/Task_Value
 HABITICA_REQUEST_WAIT_TIME = 0.5  # time to pause between concurrent requests
@@ -33,19 +32,11 @@ PRIORITY = {'easy': 1,
             'hard': 2}  # https://trello.com/c/4C8w1z5h/17-task-difficulty-settings-v2-priority-multiplier
 
 
-def load_config(fname):
-    config = None
-    try:
-        config = json.load(open(os.path.expanduser(fname), 'r'))
-    except IOError as err:
-        raise IOError('No config file at %s' % fname)
-    except ValueError as err:
-        print('Malformed config file at %s\n' % fname)
-        raise ValueError(err.msg)
-    except KeyError as err:
-        raise KeyError('Missing config key,value in %s\n' % fname)
-    return config
-
+def load_netrc:
+    host='habitica.com'
+    accts = netrc.netrc()
+    authn = accts.authenticators(host)
+    return dict( 'x-api-user': authn[0], 'x-api-key': authn[2])
 
 def clear_cache():
     """delete the cache file CACHE_FILE."""
@@ -130,10 +121,7 @@ def cli():
     """
 
     # load config and set auth
-    config = load_config(CONFIG_FILE)
-    authkeys = ['x-api-user', 'x-api-key']
-    auth = dict([(k, config[k]) for k in authkeys])
-    #auth = dict([(k, config[k]) for k in authkeys if k in config])
+    auth = load_netrc()
 
     # set up args
     args = docopt(cli.__doc__, version=VERSION)

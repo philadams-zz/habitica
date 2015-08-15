@@ -19,7 +19,7 @@ API_CONTENT_TYPE = 'application/json'
 
 class Habitica(object):
     """
-    A minimalist Habit RPG API class.
+    A minimalist Habitica API class.
     """
 
     def __init__(self, auth=None, resource=None, aspect=None):

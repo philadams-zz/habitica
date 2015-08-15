@@ -9,8 +9,8 @@ Two tools for interacting with [Habitica](http://habitica.com):
 install
 -------
 
-First `pip install habitica`. Then, using `habiticarc.sample.json` as a
-template, you'll want to add your API credentials to an `~/.habiticarc` file in
+First `pip install habitica`. Then, using `netrc.sample` as a
+template, you'll want to add your API credentials to an `~/.netrc` file in
 your home directory.
 
 Your userID and API token are available on the [Habitica options/setting/api

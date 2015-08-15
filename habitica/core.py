@@ -157,18 +157,19 @@ def cli():
     # GET user
     elif args['status']:
         user = hbt.user()
-        stats = user['stats']
-        items = user['items']
+        stats = user.get('stats', '')
+        items = user.get('items', '')
         food_count = sum(items['food'].values())
-        party = user['party']
-        quest = party['quest']['key']
-        quest_progress = party['quest']['progress']
+        party = user.get('party', '')
+        quest = party['quest'].get('key', '')
+        quest_progress = party['quest'].get('progress', '')
         title = 'Level %d %s' % (stats['lvl'], stats['class'].capitalize())
         health = '%d/%d' % (stats['hp'], stats['maxHealth'])
         xp = '%d/%d' % (int(stats['exp']), stats['toNextLevel'])
         mana = '%d/%d' % (int(stats['mp']), stats['maxMP'])
-        pet = '%s (%d food items)' % (items['currentPet'], food_count)
-        mount = items['currentMount']
+        currentPet = items.get('currentPet', '')
+        pet = '%s (%d food items)' % (currentPet, food_count)
+        mount = items.get('currentMount', '')
         len_ljust = max(map(len, ('health', 'xp', 'mana', 'pet', 'mount'))) + 1
         print('-' * len(title))
         print(title)

@@ -104,7 +104,7 @@ Complete a daily task:
 Is the Habitica server up?
 
     > habitica server
-    Habit RPG server is up
+    Habitica server is up
 
 help
 ----

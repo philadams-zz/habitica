@@ -145,9 +145,9 @@ def cli():
     if args['server']:
         server = hbt.status()
         if server['status'] == 'up':
-            print('Habit RPG server is up')
+            print('Habitica server is up')
         else:
-            print('Habit RPG server down... or your computer cannot connect')
+            print('Habitica server down... or your computer cannot connect')
 
     # open HOME
     elif args['home']:

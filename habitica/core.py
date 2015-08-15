@@ -23,8 +23,7 @@ from docopt import docopt
 from . import api
 
 
-VERSION = 'habitica version 0.0.11'
-CACHE_FILE = '~/.habitica.cache'
+VERSION = 'habitica version 0.0.12'
 TASK_VALUE_BASE = 0.9747  # http://habitica.wikia.com/wiki/Task_Value
 HABITICA_REQUEST_WAIT_TIME = 0.5  # time to pause between concurrent requests
 HABITICA_TASKS_PAGE = 'https://habitica.com/#/tasks'
@@ -38,14 +37,6 @@ def load_netrc(host='habitica.com'):
     accts = netrc.netrc()
     authn = accts.authenticators(host)
     return {'x-api-user': authn[0], 'x-api-key': authn[2]}
-
-def clear_cache():
-    """delete the cache file CACHE_FILE."""
-    try:
-        os.remove(os.path.expanduser(CACHE_FILE))
-    except OSError:
-        pass  # overwhelmingly, the cache file wasn't there
-    print('cache file (%s) deleted' % CACHE_FILE)
 
 
 def get_task_ids(args, key='<task-id>'):

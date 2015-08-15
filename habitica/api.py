@@ -36,7 +36,8 @@ class Habitica(object):
             if not self.resource:
                 return Habitica(auth=self.auth, resource=m)
             else:
-                return Habitica(auth=self.auth, resource=self.resource, aspect=m)
+                return Habitica(auth=self.auth, resource=self.resource,
+                                aspect=m)
 
     def __call__(self, **kwargs):
         method = kwargs.pop('_method', 'get')
@@ -67,7 +68,7 @@ class Habitica(object):
             res = getattr(requests, method)(uri, headers=self.headers,
                                             params=kwargs)
 
-        #print(res.url)  # debug...
+        # print(res.url)  # debug...
         if res.status_code == requests.codes.ok:
             return res.json()
         else:

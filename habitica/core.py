@@ -22,15 +22,16 @@ from docopt import docopt
 from . import api
 
 
-VERSION = 'habitica version 0.0.10'
+VERSION = 'habitica version 0.0.11'
 CONFIG_FILE = '~/.habiticarc'
 CACHE_FILE = '~/.habitica.cache'
 TASK_VALUE_BASE = 0.9747  # http://habitica.wikia.com/wiki/Task_Value
 HABITICA_REQUEST_WAIT_TIME = 0.5  # time to pause between concurrent requests
 HABITICA_TASKS_PAGE = 'https://habitica.com/#/tasks'
+# https://trello.com/c/4C8w1z5h/17-task-difficulty-settings-v2-priority-multiplier
 PRIORITY = {'easy': 1,
             'medium': 1.5,
-            'hard': 2}  # https://trello.com/c/4C8w1z5h/17-task-difficulty-settings-v2-priority-multiplier
+            'hard': 2}
 
 
 def load_config(fname):
@@ -133,7 +134,7 @@ def cli():
     config = load_config(CONFIG_FILE)
     authkeys = ['x-api-user', 'x-api-key']
     auth = dict([(k, config[k]) for k in authkeys])
-    #auth = dict([(k, config[k]) for k in authkeys if k in config])
+    # auth = dict([(k, config[k]) for k in authkeys if k in config])
 
     # set up args
     args = docopt(cli.__doc__, version=VERSION)

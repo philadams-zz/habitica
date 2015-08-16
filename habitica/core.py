@@ -7,20 +7,23 @@ Phil Adams http://philadams.net
 habitica: commandline interface for http://habitica.com
 http://github.com/philadams/habitica
 
-TODO: figure out cache solution (shelve-json?) and how/when to invalidate
+TODO:philadams add logging statements
 """
 
 
 from bisect import bisect
+import ConfigParser
 import json
 import netrc
-import os
+import os.path
 from time import sleep
 from webbrowser import open_new_tab
 
 from docopt import docopt
 
 from . import api
+
+from pprint import pprint
 
 
 VERSION = 'habitica version 0.0.12'
@@ -31,12 +34,34 @@ HABITICA_TASKS_PAGE = 'https://habitica.com/#/tasks'
 PRIORITY = {'easy': 1,
             'medium': 1.5,
             'hard': 2}
+CONFIG_FILE = os.path.join(os.path.expanduser('~'), '.habitica.cfg')
+SECTION = 'habitica'
 
 
 def load_netrc(host='habitica.com'):
     accts = netrc.netrc()
     authn = accts.authenticators(host)
     return {'x-api-user': authn[0], 'x-api-key': authn[2]}
+
+
+def load_config():
+    defaults = {'quest_key': '',
+                'quest_s': 'Not currently on a quest'}
+    config = ConfigParser.SafeConfigParser(defaults)
+    config.read(CONFIG_FILE)
+    if not config.has_section(SECTION):
+        config.add_section(SECTION)
+    return config
+
+
+def update_config(**kwargs):
+    config = load_config()
+    for key, val in kwargs.items():
+        config.set(SECTION, key, val)
+    with open(CONFIG_FILE, 'wb') as f:
+        config.write(f)
+    config.read(CONFIG_FILE)
+    return config
 
 
 def get_task_ids(args, key='<task-id>'):
@@ -114,6 +139,7 @@ def cli():
 
     # set up auth
     auth = load_netrc()
+    config = load_config()
 
     # set up args
     args = docopt(cli.__doc__, version=VERSION)
@@ -129,20 +155,39 @@ def cli():
         else:
             print('Habitica server down... or your computer cannot connect')
 
-    # open HOME
+    # open HABITICA_TASKS_PAGE
     elif args['home']:
         print('Opening %s' % HABITICA_TASKS_PAGE)
         open_new_tab(HABITICA_TASKS_PAGE)
 
     # GET user
     elif args['status']:
+
+        # gather status info
         user = hbt.user()
+        party = hbt.groups.party()
         stats = user.get('stats', '')
         items = user.get('items', '')
         food_count = sum(items['food'].values())
-        party = user.get('party', '')
-        quest = party['quest'].get('key', '')
-        quest_progress = party['quest'].get('progress', '')
+        quest = 'Not currently on a quest'
+        if 'quest' in party and party.get('quest').get('active'):
+            quest_key = party.get('quest').get('key')
+            if config.get(SECTION, 'quest_key') != quest_key:
+                # we're on a new quest, update quest key
+                # and hit /content/ quests.<quest.key> for progress info
+                # store in config 'quest_s' a repr for the quest's progress
+                content = hbt.content()
+                # TODO:philadams unjankify this for different quest types...
+                # suspect we do one thing for boss quests,
+                # and for collection types we naively search down to 'count'
+                quest_max = content['quests'][quest_key]['collect']['moonstone']['count']
+                quest_progress = party['quest']['progress']['collect']['moonstone']
+                quest_s = '%s/%s "%s"' % (quest_progress, quest_max,
+                                        content['quests'][quest_key]['text'])
+                config = update_config(quest_key=quest_key, quest_s=quest_s)
+            quest = config.get(SECTION, 'quest_s')
+
+        # prepare and print status strings
         title = 'Level %d %s' % (stats['lvl'], stats['class'].capitalize())
         health = '%d/%d' % (stats['hp'], stats['maxHealth'])
         xp = '%d/%d' % (int(stats['exp']), stats['toNextLevel'])
@@ -150,7 +195,8 @@ def cli():
         currentPet = items.get('currentPet', '')
         pet = '%s (%d food items)' % (currentPet, food_count)
         mount = items.get('currentMount', '')
-        len_ljust = max(map(len, ('health', 'xp', 'mana', 'pet', 'mount'))) + 1
+        summary_items = ('health', 'xp', 'mana', 'quest', 'pet', 'mount')
+        len_ljust = max(map(len, summary_items)) + 1
         print('-' * len(title))
         print(title)
         print('-' * len(title))
@@ -159,6 +205,7 @@ def cli():
         print('%s %s' % ('Mana:'.rjust(len_ljust, ' '), mana))
         print('%s %s' % ('Pet:'.rjust(len_ljust, ' '), pet))
         print('%s %s' % ('Mount:'.rjust(len_ljust, ' '), mount))
+        print('%s %s' % ('Quest:'.rjust(len_ljust, ' '), quest))
 
     # GET/POST habits
     elif args['habits']:

@@ -7,13 +7,17 @@ Phil Adams http://philadams.net
 habitica: commandline interface for http://habitica.com
 http://github.com/philadams/habitica
 
+TODO:philadams update README with new-look --help
 TODO:philadams add logging statements
+TODO:philadams add logging to .api
+TODO:philadams get logger named, like requests!
 """
 
 
 from bisect import bisect
 import ConfigParser
 import json
+import logging
 import netrc
 import os.path
 from time import sleep
@@ -39,12 +43,14 @@ SECTION = 'habitica'
 
 
 def load_netrc(host='habitica.com'):
+    logging.debug('Loading ~/.netrc credentials...')
     accts = netrc.netrc()
     authn = accts.authenticators(host)
     return {'x-api-user': authn[0], 'x-api-key': authn[2]}
 
 
 def load_config():
+    logging.debug('Loading cached config data (%s)...' % CONFIG_FILE)
     defaults = {'quest_key': '',
                 'quest_s': 'Not currently on a quest'}
     config = ConfigParser.SafeConfigParser(defaults)
@@ -55,6 +61,7 @@ def load_config():
 
 
 def update_config(**kwargs):
+    logging.debug('Updating (and caching) config data (%s)...' % CONFIG_FILE)
     config = load_config()
     for key, val in kwargs.items():
         config.set(SECTION, key, val)
@@ -64,16 +71,18 @@ def update_config(**kwargs):
     return config
 
 
-def get_task_ids(args, key='<task-id>'):
+def get_task_ids(tids):
     """
     handle task-id formats such as:
         habitica todos done 3
         habitica todos done 1,2,3
         habitica todos done 2 3
-        habitica todos done 1-3,4
+        habitica todos done 1-3,4 8
+    tids is a seq like (last example above) ('1-3,4' '8')
     """
+    logging.debug('raw task ids: %s' % tids)
     task_ids = []
-    for raw_arg in args[key]:
+    for raw_arg in tids:
         for bit in raw_arg.split(','):
             if '-' in bit:
                 start, stop = [int(e) for e in bit.split('-')]
@@ -105,25 +114,19 @@ def qualitative_task_score_from_value(value):
 def cli():
     """Habitica command-line interface.
 
-    usage:
-      habitica status
-      habitica habits|dailies|todos
-      habitica habits up <task-id>
-      habitica habits down <task-id>
-      habitica dailies done <task-id>
-      habitica dailies undo <task-id>
-      habitica todos done <task-id>...
-      habitica todos add <task>... [--difficulty=<d>]
-      habitica server
-      habitica home
+    Usage: habitica [--version] [--help]
+                    <command> [<args>...] [--difficulty=<d>]
+                    [--verbose | --debug]
 
-    options:
+    Options:
       -h --help         Show this screen
       --version         Show version
       --difficulty=<d>  (easy | medium | hard) [default: easy]
+      --verbose         Show some logging information
+      --debug           Some all logging information
 
-    Subcommands:
-      status                 Show HP, XP, GP, and more for user
+    The habitica commands are:
+      status                 Show HP, XP, GP, and more
       habits                 List habit tasks
       habits up <task-id>    Up (+) habit <task-id>
       habits down <task-id>  Down (-) habit <task-id>
@@ -131,24 +134,36 @@ def cli():
       dailies done           Mark daily <task-id> complete
       dailies undo           Mark daily <task-id> incomplete
       todos                  List todo tasks
-      todos done <task-id>   Mark todo <task-id> completed
+      todos done <task-id>   Mark one or more todo <task-id> completed
       todos add <task>       Add todo with description <task>
       server                 Show status of Habitica service
       home                   Open tasks page in default browser
+
+    For `habits up|down`, `dailies done|undo`, and `todos done`, you can pass
+    one or more <task-id> parameters, using either comma-separated lists or
+    ranges or both. For example, `todos done 1,3,6-9,11`.
     """
+
+    # set up args
+    args = docopt(cli.__doc__, version=VERSION)
+
+    # set up logging
+    if args['--verbose']:
+        logging.basicConfig(level=logging.INFO)
+    if args['--debug']:
+        logging.basicConfig(level=logging.DEBUG)
+
+    logging.debug('Command line args: {%s}' % ', '.join("'%s': '%s'" % (k, v) for k, v in args.items()))
 
     # set up auth
     auth = load_netrc()
     config = load_config()
 
-    # set up args
-    args = docopt(cli.__doc__, version=VERSION)
-
     # instantiate api service
     hbt = api.Habitica(auth=auth)
 
     # GET server status
-    if args['server']:
+    if args['<command>'] == 'server':
         server = hbt.status()
         if server['status'] == 'up':
             print('Habitica server is up')
@@ -156,12 +171,12 @@ def cli():
             print('Habitica server down... or your computer cannot connect')
 
     # open HABITICA_TASKS_PAGE
-    elif args['home']:
+    elif args['<command>'] == 'home':
         print('Opening %s' % HABITICA_TASKS_PAGE)
         open_new_tab(HABITICA_TASKS_PAGE)
 
     # GET user
-    elif args['status']:
+    elif args['<command>'] == 'status':
 
         # gather status info
         user = hbt.user()
@@ -170,9 +185,10 @@ def cli():
         items = user.get('items', '')
         food_count = sum(items['food'].values())
         quest = 'Not currently on a quest'
-        if 'quest' in party and party.get('quest').get('active'):
-            quest_key = party.get('quest').get('key')
+        if party['quest'] and party['quest']['active']:
+            quest_key = party['quest']['key']
             if config.get(SECTION, 'quest_key') != quest_key:
+                logging.info('Updating quest information...')
                 # we're on a new quest, update quest key
                 # and hit /content/ quests.<quest.key> for progress info
                 # store in config 'quest_s' a repr for the quest's progress
@@ -208,10 +224,10 @@ def cli():
         print('%s %s' % ('Quest:'.rjust(len_ljust, ' '), quest))
 
     # GET/POST habits
-    elif args['habits']:
-        tids = get_task_ids(args)
+    elif args['<command>'] == 'habits':
         habits = hbt.user.tasks(type='habit')
-        if args['up']:
+        if 'up' in args['<args>']:
+            tids = get_task_ids(args['<args>'][1:])
             for tid in tids:
                 tval = habits[tid]['value']
                 hbt.user.tasks(_id=habits[tid]['id'],
@@ -219,7 +235,8 @@ def cli():
                 print('incremented task \'%s\'' % habits[tid]['text'])
                 habits[tid]['value'] = tval + (TASK_VALUE_BASE ** tval)
                 sleep(HABITICA_REQUEST_WAIT_TIME)
-        elif args['down']:
+        elif 'down' in args['<args>']:
+            tids = get_task_ids(args['<args>'][1:])
             for tid in tids:
                 tval = habits[tid]['value']
                 hbt.user.tasks(_id=habits[tid]['id'],
@@ -232,17 +249,18 @@ def cli():
             print('[%s] %s %s' % (score, i + 1, task['text']))
 
     # GET/PUT tasks:daily
-    elif args['dailies']:
-        tids = get_task_ids(args)
+    elif args['<command>'] == 'dailies':
         dailies = hbt.user.tasks(type='daily')
-        if args['done']:
+        if 'done' in args['<args>']:
+            tids = get_task_ids(args['<args>'][1:])
             for tid in tids:
                 hbt.user.tasks(_id=dailies[tid]['id'],
                                _direction='up', _method='post')
                 print('marked daily \'%s\' completed' % dailies[tid]['text'])
                 dailies[tid]['completed'] = True
                 sleep(HABITICA_REQUEST_WAIT_TIME)
-        elif args['undo']:
+        elif 'undo' in args['<args>']:
+            tids = get_task_ids(args['<args>'][1:])
             for tid in tids:
                 hbt.user.tasks(_id=dailies[tid]['id'],
                                _method='put', completed=False)
@@ -252,19 +270,19 @@ def cli():
         print_task_list(dailies)
 
     # GET tasks:todo
-    elif args['todos']:
-        tids = get_task_ids(args)
+    elif args['<command>'] == 'todos':
         todos = [e for e in hbt.user.tasks(type='todo')
                  if not e['completed']]
-        if args['done']:
+        if 'done' in args['<args>']:
+            tids = get_task_ids(args['<args>'][1:])
             for tid in tids:
                 hbt.user.tasks(_id=todos[tid]['id'],
                                _direction='up', _method='post')
                 print('marked todo \'%s\' complete' % todos[tid]['text'])
                 sleep(HABITICA_REQUEST_WAIT_TIME)
             todos = updated_task_list(todos, tids)
-        elif args['add']:
-            ttext = ' '.join(args['<task>'])
+        elif 'add' in args['<args>']:
+            ttext = ' '.join(args['<args>'][1:])
             hbt.user.tasks(type='todo',
                            text=ttext,
                            priority=PRIORITY[args['--difficulty']],

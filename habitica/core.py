@@ -8,7 +8,6 @@ habitica: commandline interface for http://habitica.com
 http://github.com/philadams/habitica
 
 TODO:philadams update README with new-look --help
-TODO:philadams add logging statements
 TODO:philadams add logging to .api
 TODO:philadams get logger named, like requests!
 """
@@ -184,24 +183,52 @@ def cli():
         stats = user.get('stats', '')
         items = user.get('items', '')
         food_count = sum(items['food'].values())
+
+        # gather quest progress information (yes, janky. the API
+        # doesn't make this stat particularly easy to grab...).
+        # because hitting /content downloads a crapload of stuff, we
+        # cache info about the current quest in config.
         quest = 'Not currently on a quest'
-        if party['quest'] and party['quest']['active']:
+        if party.get('quest', '') and party.get('quest').get('active'):
             quest_key = party['quest']['key']
             if config.get(SECTION, 'quest_key') != quest_key:
-                logging.info('Updating quest information...')
                 # we're on a new quest, update quest key
-                # and hit /content/ quests.<quest.key> for progress info
-                # store in config 'quest_s' a repr for the quest's progress
+                logging.info('Updating quest information...')
                 content = hbt.content()
-                # TODO:philadams unjankify this for different quest types...
-                # suspect we do one thing for boss quests,
-                # and for collection types we naively search down to 'count'
-                quest_max = content['quests'][quest_key]['collect']['moonstone']['count']
-                quest_progress = party['quest']['progress']['collect']['moonstone']
-                quest_s = '%s/%s "%s"' % (quest_progress, quest_max,
-                                        content['quests'][quest_key]['text'])
-                config = update_config(quest_key=quest_key, quest_s=quest_s)
-            quest = config.get(SECTION, 'quest_s')
+                quest_type = ''
+                quest_max = '-1'
+                quest_title = content['quests'][quest_key]['text']
+
+                # if there's a content/quests/<quest_key/collect,
+                # then drill into .../collect/<whatever>/count and 
+                # .../collect/<whatever>/text and get those values
+                if content.get('quests', {}).get(quest_key, {}).get('collect'):
+                    logging.debug("\tOn a collection type of quest")
+                    quest_type = 'collect'
+                    clct = content['quests'][quest_key]['collect'].values()[0]
+                    quest_max = clct['count']
+                # else if it's a boss, then hit up
+                # content/quests/<quest_key>/boss/hp
+                elif content.get('quests', {}).get(quest_key, {}).get('boss'):
+                    logging.debug("\tOn a boss/hp type of quest")
+                    quest_type = 'hp'
+                    quest_max = content['quests'][quest_key]['boss']['hp']
+
+                # store repr of quest info from /content
+                config = update_config(quest_key=str(quest_key),
+                                       quest_type=str(quest_type),
+                                       quest_max=str(quest_max),
+                                       quest_title=str(quest_title))
+
+            # now we use /party and quest_type to figure out our progress!
+            quest_type = config.get(SECTION, 'quest_type')
+            if quest_type == 'collect':
+                quest_progress = party['quest']['progress']['collect'].values()[0]['count']
+            else:
+                quest_progress = party['quest']['progress']['hp']
+            quest = '%s/%s "%s"' % (str(int(quest_progress)),
+                                    config.get(SECTION, 'quest_max'),
+                                    config.get(SECTION, 'quest_title'))
 
         # prepare and print status strings
         title = 'Level %d %s' % (stats['lvl'], stats['class'].capitalize())

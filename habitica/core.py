@@ -7,7 +7,6 @@ Phil Adams http://philadams.net
 habitica: commandline interface for http://habitica.com
 http://github.com/philadams/habitica
 
-TODO:philadams update README with new-look --help
 TODO:philadams add logging to .api
 TODO:philadams get logger named, like requests!
 """

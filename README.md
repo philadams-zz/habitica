@@ -116,35 +116,34 @@ Via `habitica --help`:
 
     Habitica command-line interface.
 
-        usage:
-          habitica status
-          habitica habits|dailies|todos
-          habitica habits up <task-id>
-          habitica habits down <task-id>
-          habitica dailies done <task-id>
-          habitica dailies undo <task-id>
-          habitica todos done <task-id>...
-          habitica todos add <task>...
-          habitica server
-          habitica home
+        Usage: habitica [--version] [--help]
+                        <command> [<args>...] [--difficulty=<d>]
+                        [--verbose | --debug]
 
-        options:
-          -h --help          Show this screen
-          --version          Show version
+        Options:
+          -h --help         Show this screen
+          --version         Show version
+          --difficulty=<d>  (easy | medium | hard) [default: easy]
+          --verbose         Show some logging information
+          --debug           Some all logging information
 
-        Subcommands:
-          status                 Show HP, XP, GP, and more for user
+        The habitica commands are:
+          status                 Show HP, XP, GP, and more
           habits                 List habit tasks
           habits up <task-id>    Up (+) habit <task-id>
-          habits down <task-id>  Up (+) habit <task-id>
+          habits down <task-id>  Down (-) habit <task-id>
           dailies                List daily tasks
           dailies done           Mark daily <task-id> complete
           dailies undo           Mark daily <task-id> incomplete
           todos                  List todo tasks
-          todos done <task-id>   Mark todo <task-id> completed
+          todos done <task-id>   Mark one or more todo <task-id> completed
           todos add <task>       Add todo with description <task>
           server                 Show status of Habitica service
-          home                   Open Habitica tasks page in default browser
+          home                   Open tasks page in default browser
+
+        For `habits up|down`, `dailies done|undo`, and `todos done`, you can pass
+        one or more <task-id> parameters, using either comma-separated lists or
+        ranges or both. For example, `todos done 1,3,6-9,11`.
 
 thanks
 ------

@@ -18,8 +18,8 @@ Nice and easy : `pip install habitica`.
 If you want to keep up with the most recent developments, you will havo to
 directly clone this repository and install it by hand.
 
-   > git clone https://github.com/philadams/habitica
-   > pip install -e habitica
+    > git clone https://github.com/philadams/habitica
+    > pip install -e habitica
 
 ### configuration
 
@@ -29,10 +29,10 @@ configuration to get it working.
 The configuration file is in your home, under `~/.config/habitica/auth.cfg`.
 Fill it with something like this:
    
-   [Habitica]
-   url = https://habitica.com
-   login = USER_ID
-   password = API_KEY
+    [Habitica]
+    url = https://habitica.com
+    login = USER_ID
+    password = API_KEY
 
 The `[Habitica]` section is mandatory. You may replace the url with one of you
 r own (if you are self-hosting a server for example). Your userID and API

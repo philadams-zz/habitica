@@ -146,7 +146,7 @@ def updated_task_list(tasks, tids):
 def print_task_list(tasks):
     for i, task in enumerate(tasks):
         completed = 'x' if task['completed'] else ' '
-        print('[%s] %s %s' % (completed, i + 1, task['text']))
+        print('[%s] %s %s' % (completed, i + 1, task['text'].encode('utf8')))
 
 
 def qualitative_task_score_from_value(value):
@@ -316,7 +316,7 @@ def cli():
                 tval = habits[tid]['value']
                 hbt.user.tasks(_id=habits[tid]['id'],
                                _direction='up', _method='post')
-                print('incremented task \'%s\'' % habits[tid]['text'])
+                print('incremented task \'%s\'' % habits[tid]['text'].encode('utf8'))
                 habits[tid]['value'] = tval + (TASK_VALUE_BASE ** tval)
                 sleep(HABITICA_REQUEST_WAIT_TIME)
         elif 'down' in args['<args>']:
@@ -325,12 +325,12 @@ def cli():
                 tval = habits[tid]['value']
                 hbt.user.tasks(_id=habits[tid]['id'],
                                _direction='down', _method='post')
-                print('decremented task \'%s\'' % habits[tid]['text'])
+                print('decremented task \'%s\'' % habits[tid]['text'].encode('utf8'))
                 habits[tid]['value'] = tval - (TASK_VALUE_BASE ** tval)
                 sleep(HABITICA_REQUEST_WAIT_TIME)
         for i, task in enumerate(habits):
             score = qualitative_task_score_from_value(task['value'])
-            print('[%s] %s %s' % (score, i + 1, task['text']))
+            print('[%s] %s %s' % (score, i + 1, task['text'].encode('utf8')))
 
     # GET/PUT tasks:daily
     elif args['<command>'] == 'dailies':
@@ -340,7 +340,7 @@ def cli():
             for tid in tids:
                 hbt.user.tasks(_id=dailies[tid]['id'],
                                _direction='up', _method='post')
-                print('marked daily \'%s\' completed' % dailies[tid]['text'])
+                print('marked daily \'%s\' completed' % dailies[tid]['text'].encode('utf8'))
                 dailies[tid]['completed'] = True
                 sleep(HABITICA_REQUEST_WAIT_TIME)
         elif 'undo' in args['<args>']:
@@ -348,7 +348,7 @@ def cli():
             for tid in tids:
                 hbt.user.tasks(_id=dailies[tid]['id'],
                                _method='put', completed=False)
-                print('marked daily \'%s\' incomplete' % dailies[tid]['text'])
+                print('marked daily \'%s\' incomplete' % dailies[tid]['text'].encode('utf8'))
                 dailies[tid]['completed'] = False
                 sleep(HABITICA_REQUEST_WAIT_TIME)
         print_task_list(dailies)
@@ -362,7 +362,7 @@ def cli():
             for tid in tids:
                 hbt.user.tasks(_id=todos[tid]['id'],
                                _direction='up', _method='post')
-                print('marked todo \'%s\' complete' % todos[tid]['text'])
+                print('marked todo \'%s\' complete' % todos[tid]['text'].encode('utf8'))
                 sleep(HABITICA_REQUEST_WAIT_TIME)
             todos = updated_task_list(todos, tids)
         elif 'add' in args['<args>']:
@@ -372,7 +372,7 @@ def cli():
                            priority=PRIORITY[args['--difficulty']],
                            _method='post')
             todos.insert(0, {'completed': False, 'text': ttext})
-            print('added new todo \'%s\'' % ttext)
+            print('added new todo \'%s\'' % ttext.encode('utf8'))
         print_task_list(todos)
 
 

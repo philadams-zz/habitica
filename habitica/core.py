@@ -13,7 +13,6 @@ TODO:philadams get logger named, like requests!
 
 
 from bisect import bisect
-import ConfigParser
 import json
 import logging
 import netrc
@@ -27,6 +26,11 @@ from . import api
 
 from pprint import pprint
 
+try:
+    import ConfigParser as configparser
+except:
+    import configparser
+
 
 VERSION = 'habitica version 0.0.12'
 TASK_VALUE_BASE = 0.9747  # http://habitica.wikia.com/wiki/Task_Value
@@ -36,37 +40,80 @@ HABITICA_TASKS_PAGE = 'https://habitica.com/#/tasks'
 PRIORITY = {'easy': 1,
             'medium': 1.5,
             'hard': 2}
-CONFIG_FILE = os.path.join(os.path.expanduser('~'), '.habitica.cfg')
-SECTION = 'habitica'
+AUTH_CONF  = os.path.expanduser('~') + '/.config/habitica/auth.cfg'
+CACHE_CONF = os.path.expanduser('~') + '/.config/habitica/cache.cfg'
+
+SECTION_CACHE_QUEST = 'Quest'
 
 
-def load_netrc(host='habitica.com'):
-    logging.debug('Loading ~/.netrc credentials...')
-    accts = netrc.netrc()
-    authn = accts.authenticators(host)
-    return {'x-api-user': authn[0], 'x-api-key': authn[2]}
+def load_auth(configfile):
+    """Get authentication data from the AUTH_CONF file."""
+
+    logging.debug('Loading habitica auth data from %s' % configfile)
+
+    try :
+        cf = open(configfile)
+    except IOError:
+        logging.error(  "Unable to find authentication data in '%s'. Please " \
+                        "check that the file exists."
+                      % configfile )
+        exit(1)
+
+    config = configparser.SafeConfigParser()
+    config.readfp(cf)
+
+    cf.close()
+
+    # Get data from config
+    rv = {}
+    try:
+          rv = {'url'       : config.get('Habitica', 'url'     ),
+                'x-api-user': config.get('Habitica', 'login'   ),
+                'x-api-key' : config.get('Habitica', 'password')}
+
+    except configparser.NoSectionError:
+        logging.error(   "No 'Habitica' section in auth file '%s'"
+                       % configfile )
+        exit(1)
+
+    except configparser.NoOptionError as e:
+        logging.error(   "Missing option in auth file '%s': %s"
+                       % ( configfile, e.message) )
+        exit(1)
+
+    # Return auth data as a dictionnary
+    return rv
 
 
-def load_config():
-    logging.debug('Loading cached config data (%s)...' % CONFIG_FILE)
-    defaults = {'quest_key': '',
-                'quest_s': 'Not currently on a quest'}
-    config = ConfigParser.SafeConfigParser(defaults)
-    config.read(CONFIG_FILE)
-    if not config.has_section(SECTION):
-        config.add_section(SECTION)
-    return config
+def load_cache(configfile):
+    logging.debug('Loading cached config data (%s)...' % configfile)
+
+    defaults = {'quest_key' : '',
+                'quest_s'   : 'Not currently on a quest'}
+
+    cache = configparser.SafeConfigParser(defaults)
+    cache.read(configfile)
+
+    if not cache.has_section(SECTION_CACHE_QUEST):
+        cache.add_section(SECTION_CACHE_QUEST)
+
+    return cache
 
 
-def update_config(**kwargs):
-    logging.debug('Updating (and caching) config data (%s)...' % CONFIG_FILE)
-    config = load_config()
+def update_quest_cache(configfile, **kwargs):
+    logging.debug('Updating (and caching) config data (%s)...' % configfile)
+
+    cache = load_cache(configfile)
+
     for key, val in kwargs.items():
-        config.set(SECTION, key, val)
-    with open(CONFIG_FILE, 'wb') as f:
-        config.write(f)
-    config.read(CONFIG_FILE)
-    return config
+        cache.set(SECTION_CACHE_QUEST, key, val)
+
+    with open(configfile, 'wb') as f:
+        cache.write(f)
+
+    cache.read(configfile)
+
+    return cache
 
 
 def get_task_ids(tids):
@@ -151,11 +198,14 @@ def cli():
     if args['--debug']:
         logging.basicConfig(level=logging.DEBUG)
 
-    logging.debug('Command line args: {%s}' % ', '.join("'%s': '%s'" % (k, v) for k, v in args.items()))
+    logging.debug('Command line args: {%s}' %
+                  ', '.join("'%s': '%s'" % (k, v) for k, v in args.items()) )
 
-    # set up auth
-    auth = load_netrc()
-    config = load_config()
+    # Set up auth
+    auth = load_auth(AUTH_CONF)
+
+    # Prepare cache
+    cache = load_cache(CACHE_CONF)
 
     # instantiate api service
     hbt = api.Habitica(auth=auth)
@@ -186,11 +236,15 @@ def cli():
         # gather quest progress information (yes, janky. the API
         # doesn't make this stat particularly easy to grab...).
         # because hitting /content downloads a crapload of stuff, we
-        # cache info about the current quest in config.
+        # cache info about the current quest in cache.
         quest = 'Not currently on a quest'
-        if party.get('quest', '') and party.get('quest').get('active'):
+        if (     party is not None
+             and party.get('quest', '')
+             and party.get('quest').get('active') ):
+
             quest_key = party['quest']['key']
-            if config.get(SECTION, 'quest_key') != quest_key:
+
+            if cache.get(SECTION_CACHE_QUEST, 'quest_key') != quest_key:
                 # we're on a new quest, update quest key
                 logging.info('Updating quest information...')
                 content = hbt.content()
@@ -214,20 +268,24 @@ def cli():
                     quest_max = content['quests'][quest_key]['boss']['hp']
 
                 # store repr of quest info from /content
-                config = update_config(quest_key=str(quest_key),
-                                       quest_type=str(quest_type),
-                                       quest_max=str(quest_max),
-                                       quest_title=str(quest_title))
+                cache = update_quest_cache(
+                                       CACHE_CONF                     ,
+                                       quest_key   = str(quest_key)   ,
+                                       quest_type  = str(quest_type)  ,
+                                       quest_max   = str(quest_max)   ,
+                                       quest_title = str(quest_title) )
 
             # now we use /party and quest_type to figure out our progress!
-            quest_type = config.get(SECTION, 'quest_type')
+            quest_type = cache.get(SECTION_CACHE_QUEST, 'quest_type')
             if quest_type == 'collect':
                 quest_progress = party['quest']['progress']['collect'].values()[0]['count']
             else:
                 quest_progress = party['quest']['progress']['hp']
-            quest = '%s/%s "%s"' % (str(int(quest_progress)),
-                                    config.get(SECTION, 'quest_max'),
-                                    config.get(SECTION, 'quest_title'))
+
+            quest = '%s/%s "%s"' % (
+                    str(int(quest_progress)),
+                    cache.get(SECTION_CACHE_QUEST, 'quest_max')   ,
+                    cache.get(SECTION_CACHE_QUEST, 'quest_title') )
 
         # prepare and print status strings
         title = 'Level %d %s' % (stats['lvl'], stats['class'].capitalize())

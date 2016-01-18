@@ -1,3 +1,0 @@
-machine habitica.com
-    login USER_ID
-    password API_KEY

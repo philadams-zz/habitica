@@ -9,15 +9,36 @@ Two tools for interacting with [Habitica](http://habitica.com):
 install
 -------
 
-First `pip install habitica`.
+`pip install habitica`.
 
-Then, using [`netrc.sample`](/netrc.sample) as a template, you'll want to add
-your API credentials to a `~/.netrc` file in your home directory.  Either
-append to your `~/.netrc`, or create a new `~/.netrc` file, remembering to
-`chmod 600 ~/.netrc`.
+I push to pip fairly frequently, but if you'd like to be on the bleeding edge,
+clone this project and install it by hand:
 
-Your userID and API token are available on the [Habitica options/setting/api
-page](https://habitica.com/#/options/settings/api).
+    > git clone https://github.com/philadams/habitica
+    > pip install -e habitica
+
+configure
+---------
+
+You'll need to let the tool know how to connect to your Habitica account. To do
+this, you'll need to add the following credentials section in the file
+`~/.config/habitica/auth.cfg` (you may need to create the folder(s) and file):
+
+    [Habitica]
+    url = https://habitica.com
+    login = USER_ID
+    password = API_KEY
+
+There's a template for this file at `auth.cfg.sample`.
+
+Replace USER\_ID and API\_KEY with the corresponding tokens from [your Habitica
+settings>API page](https://habitica.com/#/options/settings/api).
+
+You can replace `url` as needed, for example if you're self-hosting a Habitica
+server.
+
+Lastly, remember to `chmod 600 ~/.config/habitica/auth.cfg` to keep your
+credentials secret.
 
 usage
 -----

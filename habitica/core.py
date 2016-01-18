@@ -35,7 +35,7 @@ except:
 VERSION = 'habitica version 0.0.12'
 TASK_VALUE_BASE = 0.9747  # http://habitica.wikia.com/wiki/Task_Value
 HABITICA_REQUEST_WAIT_TIME = 0.5  # time to pause between concurrent requests
-HABITICA_TASKS_PAGE = 'https://habitica.com/#/tasks'
+HABITICA_TASKS_PAGE = '/#/tasks'
 # https://trello.com/c/4C8w1z5h/17-task-difficulty-settings-v2-priority-multiplier
 PRIORITY = {'easy': 1,
             'medium': 1.5,
@@ -217,8 +217,9 @@ def cli():
 
     # open HABITICA_TASKS_PAGE
     elif args['<command>'] == 'home':
-        print('Opening %s' % HABITICA_TASKS_PAGE)
-        open_new_tab(HABITICA_TASKS_PAGE)
+        home_url = '%s%s' % (auth['url'], HABITICA_TASKS_PAGE)
+        print('Opening %s' % home_url)
+        open_new_tab(home_url)
 
     # GET user
     elif args['<command>'] == 'status':

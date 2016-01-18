@@ -9,38 +9,36 @@ Two tools for interacting with [Habitica](http://habitica.com):
 install
 -------
 
-### The pip way
+`pip install habitica`.
 
-Nice and easy : `pip install habitica`.
-
-### The git way
-
-If you want to keep up with the most recent developments, you will havo to
-directly clone this repository and install it by hand.
+I push to pip fairly frequently, but if you'd like to be on the bleeding edge,
+clone this project and install it by hand:
 
     > git clone https://github.com/philadams/habitica
     > pip install -e habitica
 
-### configuration
+configure
+---------
 
-Whatever way you chose to install this program, you will need a bit of
-configuration to get it working.
+You'll need to let the tool know how to connect to your Habitica account. To do
+this, you'll need to add the following credentials section in the file
+`~/.config/habitica/auth.cfg` (you may need to create the folder(s) and file):
 
-The configuration file is in your home, under `~/.config/habitica/auth.cfg`.
-Fill it with something like this:
-   
     [Habitica]
     url = https://habitica.com
     login = USER_ID
     password = API_KEY
 
-The `[Habitica]` section is mandatory. You may replace the url with one of you
-r own (if you are self-hosting a server for example). Your userID and API
-token are available on the [Habitica options/setting/api
-page](https://habitica.com/#/options/settings/api).
+There's a template for this file at `auth.cfg.sample`.
 
-Remember to `chmod 600 ~/.config/habitica/auth.cfg` if you want to keep your
-credentials a secret.
+Replace USER\_ID and API\_KEY with the corresponding tokens from [your Habitica
+settings>API page](https://habitica.com/#/options/settings/api).
+
+You can replace `url` as needed, for example if you're self-hosting a Habitica
+server.
+
+Lastly, remember to `chmod 600 ~/.config/habitica/auth.cfg` to keep your
+credentials secret.
 
 usage
 -----

@@ -40,7 +40,7 @@ HABITICA_TASKS_PAGE = 'https://habitica.com/#/tasks'
 PRIORITY = {'easy': 1,
             'medium': 1.5,
             'hard': 2}
-AUTH_CONF  = os.path.expanduser('~') + '/.config/habitica/auth.cfg'
+AUTH_CONF = os.path.expanduser('~') + '/.config/habitica/auth.cfg'
 CACHE_CONF = os.path.expanduser('~') + '/.config/habitica/cache.cfg'
 
 SECTION_CACHE_QUEST = 'Quest'
@@ -51,12 +51,10 @@ def load_auth(configfile):
 
     logging.debug('Loading habitica auth data from %s' % configfile)
 
-    try :
+    try:
         cf = open(configfile)
     except IOError:
-        logging.error(  "Unable to find authentication data in '%s'. Please " \
-                        "check that the file exists."
-                      % configfile )
+        logging.error("Unable to find '%s'." % configfile)
         exit(1)
 
     config = configparser.SafeConfigParser()
@@ -67,18 +65,17 @@ def load_auth(configfile):
     # Get data from config
     rv = {}
     try:
-          rv = {'url'       : config.get('Habitica', 'url'     ),
-                'x-api-user': config.get('Habitica', 'login'   ),
-                'x-api-key' : config.get('Habitica', 'password')}
+        rv = {'url': config.get('Habitica', 'url'),
+              'x-api-user': config.get('Habitica', 'login'),
+              'x-api-key': config.get('Habitica', 'password')}
 
     except configparser.NoSectionError:
-        logging.error(   "No 'Habitica' section in auth file '%s'"
-                       % configfile )
+        logging.error("No 'Habitica' section in '%s'" % configfile)
         exit(1)
 
     except configparser.NoOptionError as e:
-        logging.error(   "Missing option in auth file '%s': %s"
-                       % ( configfile, e.message) )
+        logging.error("Missing option in auth file '%s': %s"
+                      % (configfile, e.message))
         exit(1)
 
     # Return auth data as a dictionnary
@@ -88,8 +85,8 @@ def load_auth(configfile):
 def load_cache(configfile):
     logging.debug('Loading cached config data (%s)...' % configfile)
 
-    defaults = {'quest_key' : '',
-                'quest_s'   : 'Not currently on a quest'}
+    defaults = {'quest_key': '',
+                'quest_s': 'Not currently on a quest'}
 
     cache = configparser.SafeConfigParser(defaults)
     cache.read(configfile)
@@ -199,7 +196,7 @@ def cli():
         logging.basicConfig(level=logging.DEBUG)
 
     logging.debug('Command line args: {%s}' %
-                  ', '.join("'%s': '%s'" % (k, v) for k, v in args.items()) )
+                  ', '.join("'%s': '%s'" % (k, v) for k, v in args.items()))
 
     # Set up auth
     auth = load_auth(AUTH_CONF)
@@ -238,9 +235,9 @@ def cli():
         # because hitting /content downloads a crapload of stuff, we
         # cache info about the current quest in cache.
         quest = 'Not currently on a quest'
-        if (     party is not None
-             and party.get('quest', '')
-             and party.get('quest').get('active') ):
+        if (party is not None and
+                party.get('quest', '') and
+                party.get('quest').get('active')):
 
             quest_key = party['quest']['key']
 
@@ -253,7 +250,7 @@ def cli():
                 quest_title = content['quests'][quest_key]['text']
 
                 # if there's a content/quests/<quest_key/collect,
-                # then drill into .../collect/<whatever>/count and 
+                # then drill into .../collect/<whatever>/count and
                 # .../collect/<whatever>/text and get those values
                 if content.get('quests', {}).get(quest_key, {}).get('collect'):
                     logging.debug("\tOn a collection type of quest")
@@ -268,24 +265,24 @@ def cli():
                     quest_max = content['quests'][quest_key]['boss']['hp']
 
                 # store repr of quest info from /content
-                cache = update_quest_cache(
-                                       CACHE_CONF                     ,
-                                       quest_key   = str(quest_key)   ,
-                                       quest_type  = str(quest_type)  ,
-                                       quest_max   = str(quest_max)   ,
-                                       quest_title = str(quest_title) )
+                cache = update_quest_cache(CACHE_CONF,
+                                           quest_key=str(quest_key),
+                                           quest_type=str(quest_type),
+                                           quest_max=str(quest_max),
+                                           quest_title=str(quest_title))
 
             # now we use /party and quest_type to figure out our progress!
             quest_type = cache.get(SECTION_CACHE_QUEST, 'quest_type')
             if quest_type == 'collect':
-                quest_progress = party['quest']['progress']['collect'].values()[0]['count']
+                qp_tmp = party['quest']['progress']['collect']
+                quest_progress = qp_tmp.values()[0]['count']
             else:
                 quest_progress = party['quest']['progress']['hp']
 
             quest = '%s/%s "%s"' % (
                     str(int(quest_progress)),
-                    cache.get(SECTION_CACHE_QUEST, 'quest_max')   ,
-                    cache.get(SECTION_CACHE_QUEST, 'quest_title') )
+                    cache.get(SECTION_CACHE_QUEST, 'quest_max'),
+                    cache.get(SECTION_CACHE_QUEST, 'quest_title'))
 
         # prepare and print status strings
         title = 'Level %d %s' % (stats['lvl'], stats['class'].capitalize())
@@ -316,7 +313,8 @@ def cli():
                 tval = habits[tid]['value']
                 hbt.user.tasks(_id=habits[tid]['id'],
                                _direction='up', _method='post')
-                print('incremented task \'%s\'' % habits[tid]['text'].encode('utf8'))
+                print('incremented task \'%s\''
+                      % habits[tid]['text'].encode('utf8'))
                 habits[tid]['value'] = tval + (TASK_VALUE_BASE ** tval)
                 sleep(HABITICA_REQUEST_WAIT_TIME)
         elif 'down' in args['<args>']:
@@ -325,7 +323,8 @@ def cli():
                 tval = habits[tid]['value']
                 hbt.user.tasks(_id=habits[tid]['id'],
                                _direction='down', _method='post')
-                print('decremented task \'%s\'' % habits[tid]['text'].encode('utf8'))
+                print('decremented task \'%s\''
+                      % habits[tid]['text'].encode('utf8'))
                 habits[tid]['value'] = tval - (TASK_VALUE_BASE ** tval)
                 sleep(HABITICA_REQUEST_WAIT_TIME)
         for i, task in enumerate(habits):
@@ -340,7 +339,8 @@ def cli():
             for tid in tids:
                 hbt.user.tasks(_id=dailies[tid]['id'],
                                _direction='up', _method='post')
-                print('marked daily \'%s\' completed' % dailies[tid]['text'].encode('utf8'))
+                print('marked daily \'%s\' completed'
+                      % dailies[tid]['text'].encode('utf8'))
                 dailies[tid]['completed'] = True
                 sleep(HABITICA_REQUEST_WAIT_TIME)
         elif 'undo' in args['<args>']:
@@ -348,7 +348,8 @@ def cli():
             for tid in tids:
                 hbt.user.tasks(_id=dailies[tid]['id'],
                                _method='put', completed=False)
-                print('marked daily \'%s\' incomplete' % dailies[tid]['text'].encode('utf8'))
+                print('marked daily \'%s\' incomplete'
+                      % dailies[tid]['text'].encode('utf8'))
                 dailies[tid]['completed'] = False
                 sleep(HABITICA_REQUEST_WAIT_TIME)
         print_task_list(dailies)
@@ -362,7 +363,8 @@ def cli():
             for tid in tids:
                 hbt.user.tasks(_id=todos[tid]['id'],
                                _direction='up', _method='post')
-                print('marked todo \'%s\' complete' % todos[tid]['text'].encode('utf8'))
+                print('marked todo \'%s\' complete'
+                      % todos[tid]['text'].encode('utf8'))
                 sleep(HABITICA_REQUEST_WAIT_TIME)
             todos = updated_task_list(todos, tids)
         elif 'add' in args['<args>']:

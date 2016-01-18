@@ -13,7 +13,6 @@ import json
 
 import requests
 
-#API_SCHEME_BASE = 'https'
 API_URI_BASE = 'api/v2'
 API_CONTENT_TYPE = 'application/json'
 
@@ -50,25 +49,22 @@ class Habitica(object):
             aspect_id = kwargs.pop('_id', None)
             direction = kwargs.pop('_direction', None)
             if aspect_id is not None:
-                uri = '%s/%s/%s/%s/%s' % (
-                                       self.auth['url'],
-                                       API_URI_BASE,
-                                       self.resource,
-                                       self.aspect,
-                                       str(aspect_id) )
+                uri = '%s/%s/%s/%s/%s' % (self.auth['url'],
+                                          API_URI_BASE,
+                                          self.resource,
+                                          self.aspect,
+                                          str(aspect_id))
             else:
-                uri = '%s/%s/%s/%s' % (
-                                       self.auth['url'],
+                uri = '%s/%s/%s/%s' % (self.auth['url'],
                                        API_URI_BASE,
                                        self.resource,
-                                       self.aspect )
+                                       self.aspect)
             if direction is not None:
                 uri = '%s/%s' % (uri, direction)
         else:
-            uri = '%s/%s/%s' % (
-                                       self.auth['url'],
-                                       API_URI_BASE,
-                                       self.resource )
+            uri = '%s/%s/%s' % (self.auth['url'],
+                                API_URI_BASE,
+                                self.resource)
 
         # actually make the request of the API
         if method in ['put', 'post']:

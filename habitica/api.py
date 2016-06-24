@@ -8,6 +8,7 @@ Python wrapper around the Habitica (http://habitica.com) API
 http://github.com/philadams/habitica
 """
 
+
 import json
 
 import requests
@@ -40,6 +41,7 @@ class Habitica(object):
 
     def __call__(self, **kwargs):
         method = kwargs.pop('_method', 'get')
+
         # build up URL... Habitica's api is the *teeniest* bit annoying
         # so either i need to find a cleaner way here, or i should
         # get involved in the API itself and... help it.
@@ -66,6 +68,7 @@ class Habitica(object):
             uri = '%s/%s/%s' % (self.auth['url'],
                                 API_URI_BASE,
                                 self.resource)
+
         # actually make the request of the API
         if method in ['put', 'post']:
             res = getattr(requests, method)(uri, headers=self.headers,
@@ -74,7 +77,7 @@ class Habitica(object):
             res = getattr(requests, method)(uri, headers=self.headers,
                                             params=kwargs)
 
-        #print(res.url)  # debug...
+        # print(res.url)  # debug...
         if res.status_code == requests.codes.ok:
             return res.json()["data"]
         else:

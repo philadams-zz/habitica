@@ -307,7 +307,7 @@ def cli():
 
     # GET/POST habits
     elif args['<command>'] == 'habits':
-        habits = hbt.user.tasks(type='habit')
+        habits = hbt.user.tasks(type='habits')
         if 'up' in args['<args>']:
             tids = get_task_ids(args['<args>'][1:])
             for tid in tids:
@@ -334,7 +334,7 @@ def cli():
 
     # GET/PUT tasks:daily
     elif args['<command>'] == 'dailies':
-        dailies = hbt.user.tasks(type='daily')
+        dailies = hbt.user.tasks(type='dailys')
         if 'done' in args['<args>']:
             tids = get_task_ids(args['<args>'][1:])
             for tid in tids:
@@ -357,7 +357,7 @@ def cli():
 
     # GET tasks:todo
     elif args['<command>'] == 'todos':
-        todos = [e for e in hbt.user.tasks(type='todo')
+        todos = [e for e in hbt.user.tasks(type='todos')
                  if not e['completed']]
         if 'done' in args['<args>']:
             tids = get_task_ids(args['<args>'][1:])

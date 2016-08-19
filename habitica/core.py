@@ -44,6 +44,7 @@ AUTH_CONF = os.path.expanduser('~') + '/.config/habitica/auth.cfg'
 CACHE_CONF = os.path.expanduser('~') + '/.config/habitica/cache.cfg'
 
 SECTION_CACHE_QUEST = 'Quest'
+checklists_on = False
 
 
 def load_auth(configfile):
@@ -66,6 +67,7 @@ def load_auth(configfile):
     rv = {}
     try:
         rv = {'url': config.get('Habitica', 'url'),
+              'checklists': config.get('Habitica', 'checklists'),
               'x-api-user': config.get('Habitica', 'login'),
               'x-api-key': config.get('Habitica', 'password')}
 
@@ -140,10 +142,29 @@ def updated_task_list(tasks, tids):
     return tasks
 
 
+def cl_done_count(task):
+    items = task['checklist']
+    count = 0
+    for li in items:
+        if li['completed'] == True:
+            count = count + 1
+    return count
+
+def cl_item_count(task):
+    return len(task['checklist'])
+
 def print_task_list(tasks):
     for i, task in enumerate(tasks):
         completed = 'x' if task['completed'] else ' '
-        print('[%s] %s %s' % (completed, i + 1, task['text'].encode('utf8')))
+        task_line = '[%s] %s %s' % (completed, i + 1, task['text'].encode('utf8'))
+        checklist_available = 'checklist' in task and cl_item_count > 0
+        if checklist_available:
+            task_line+= ' (%s/%s)' % (str(cl_done_count(task)), str(cl_item_count(task)))
+        print(task_line)
+        if checklists_on and checklist_available:
+            for c, check in enumerate(task['checklist']):
+                completed = 'x' if check['completed'] else ' '
+                print('    -[%s] %s %s' % (completed, c + 1, check['text'].encode('utf8')))
 
 
 def qualitative_task_score_from_value(value):
@@ -184,6 +205,9 @@ def cli():
     For `habits up|down`, `dailies done|undo`, and `todos done`, you can pass
     one or more <task-id> parameters, using either comma-separated lists or
     ranges or both. For example, `todos done 1,3,6-9,11`.
+
+    To show checklists with "todos" and "dailies" add change 'checklists' in your auth.cfg
+    file to 'checklists = true' (without the quotes).
     """
 
     # set up args
@@ -206,6 +230,11 @@ def cli():
 
     # instantiate api service
     hbt = api.Habitica(auth=auth)
+
+    # Flag checklists as on if true in the config
+    if auth['checklists'] == "true":
+        global checklists_on
+        checklists_on = True
 
     # GET server status
     if args['<command>'] == 'server':

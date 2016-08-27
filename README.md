@@ -1,4 +1,4 @@
-habitica
+Habitica
 ========
 
 Two tools for interacting with [Habitica](http://habitica.com):
@@ -6,7 +6,7 @@ Two tools for interacting with [Habitica](http://habitica.com):
 1. Python wrapper for the RESTful Habitica API (`habitica.api`)
 2. Command-line interface with subcommands (e.g. `> habitica todos`)
 
-install
+Install
 -------
 
 `pip install habitica`.
@@ -17,7 +17,7 @@ clone this project and install it by hand:
     > git clone https://github.com/philadams/habitica
     > pip install -e habitica
 
-configure
+Configure
 ---------
 
 You'll need to let the tool know how to connect to your Habitica account. To do
@@ -40,7 +40,7 @@ server.
 Lastly, remember to `chmod 600 ~/.config/habitica/auth.cfg` to keep your
 credentials secret.
 
-usage
+Usage
 -----
 
 What's my character's status?
@@ -75,7 +75,7 @@ Complete a todo:
     [ ] 4 complete Keppi project report and share with Geri
     [ ] 5 make reservation at Agava for Saturday night
 
-Complete multiple todos. All `done`, `undo`, `up`, `down` commands can take 1
+Complete multiple todos. All `done`, `undo`, `up`, `down` commands can take one
 or more tasks as arguments, using either comma-separated lists or ranges or
 both:
 
@@ -130,7 +130,7 @@ Is the Habitica server up?
     > habitica server
     Habitica server is up
 
-help
+Help
 ----
 
 Via `habitica --help`:
@@ -166,7 +166,7 @@ Via `habitica --help`:
         one or more <task-id> parameters, using either comma-separated lists or
         ranges or both. For example, `todos done 1,3,6-9,11`.
 
-thanks
+Thanks
 ------
 
 Many thanks to the following excellent projects:

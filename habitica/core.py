@@ -176,13 +176,29 @@ def qualitative_task_score_from_value(value):
     breakpoints = [-20, -10, -1, 1, 5, 10]
     return scores[bisect(breakpoints, value)]
 
+def set_checklists_status(auth, args):
+    global checklists_on
+
+    if auth['checklists'] == "true":
+        checklists_on = True
+    else:
+        checklists_on = False
+
+    # Reverse the config setting if specified by the CLI option
+    if args['--checklists']:
+        if checklists_on:
+                checklists_on = False
+        else:
+            checklists_on = True
+
+    return
 
 def cli():
     """Habitica command-line interface.
 
     Usage: habitica [--version] [--help]
                     <command> [<args>...] [--difficulty=<d>]
-                    [--verbose | --debug]
+                    [--verbose | --debug] [--checklists]
 
     Options:
       -h --help         Show this screen
@@ -190,6 +206,7 @@ def cli():
       --difficulty=<d>  (easy | medium | hard) [default: easy]
       --verbose         Show some logging information
       --debug           Some all logging information
+      -c --checklists   Toggle displaying checklists on or off
 
     The habitica commands are:
       status                 Show HP, XP, GP, and more
@@ -209,7 +226,7 @@ def cli():
     one or more <task-id> parameters, using either comma-separated lists or
     ranges or both. For example, `todos done 1,3,6-9,11`.
 
-    To show checklists with "todos" and "dailies" add change 'checklists' in your auth.cfg
+    To show checklists with "todos" and "dailies" permanently, set 'checklists' in your auth.cfg
     file to 'checklists = true' (without the quotes).
     """
 
@@ -235,9 +252,7 @@ def cli():
     hbt = api.Habitica(auth=auth)
 
     # Flag checklists as on if true in the config
-    if auth['checklists'] == "true":
-        global checklists_on
-        checklists_on = True
+    set_checklists_status(auth, args)
 
     # GET server status
     if args['<command>'] == 'server':

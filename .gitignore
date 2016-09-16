@@ -2,3 +2,4 @@ venv-*
 fabfile.py
 *.pyc
 habitica.egg-info
+*.swp

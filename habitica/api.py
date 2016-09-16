@@ -49,7 +49,7 @@ class Habitica(object):
             aspect_id = kwargs.pop('_id', None)
             direction = kwargs.pop('_direction', None)
             uri = '%s/%s' % (self.auth['url'],
-                                   API_URI_BASE)
+                             API_URI_BASE)
             if aspect_id is not None:
                 uri = '%s/%s/%s' % (uri,
                                     self.aspect,
@@ -57,10 +57,10 @@ class Habitica(object):
             elif self.aspect == 'tasks':
                 uri = '%s/%s/%s' % (uri,
                                     self.aspect,
-									self.resource)
+                                    self.resource)
             else:
                 uri = '%s/%s/%s' % (uri,
-									self.resource,
+                                    self.resource,
                                     self.aspect)
             if direction is not None:
                 uri = '%s/score/%s' % (uri, direction)

@@ -11,3 +11,5 @@ v0.0.10, 2015-04-04 -- Add pet, mount, and food item count to `hrpg status`.
 v0.0.11, 2015-07-31 -- Change project, package, and command name to habitica.
 v0.0.12, 2015-08-15 -- Merge PRs for status key errors and move to using .netrc.
 v0.0.13, 2016-01-18 -- Merge PR for self-hosted server; misc tweaks.
+v0.0.14, 2016-09-15 -- Merge PRs for v3 of Habitica API and checklists on tasks.
+v0.0.15, 2016-09-15 -- Fix distribution errors. Idiot.

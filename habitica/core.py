@@ -57,7 +57,7 @@ def load_auth(configfile):
         logging.error("Unable to find '%s'." % configfile)
         exit(1)
 
-    config = configparser.SafeConfigParser()
+    config = configparser.SafeConfigParser({'checklists': False})
     config.readfp(cf)
 
     cf.close()
@@ -149,24 +149,30 @@ def cl_done_count(task):
             count = count + 1
     return count
 
+
 def cl_item_count(task):
     if 'checklist' in task:
         return len(task['checklist'])
     else:
         return 0
 
+
 def print_task_list(tasks):
     for i, task in enumerate(tasks):
         completed = 'x' if task['completed'] else ' '
-        task_line = '[%s] %s %s' % (completed, i + 1, task['text'].encode('utf8'))
+        task_line = '[%s] %s %s' % (completed,
+                                    i + 1,
+                                    task['text'].encode('utf8'))
         checklist_available = cl_item_count(task) > 0
         if checklist_available:
-            task_line+= ' (%s/%s)' % (str(cl_done_count(task)), str(cl_item_count(task)))
+            task_line += ' (%s/%s)' % (str(cl_done_count(task)),
+                                       str(cl_item_count(task)))
         print(task_line)
         if checklists_on and checklist_available:
             for c, check in enumerate(task['checklist']):
                 completed = 'x' if check['completed'] else ' '
-                print('    -[%s] %s %s' % (completed, c + 1, check['text'].encode('utf8')))
+                print('    [%s] %s' % (completed,
+                                       check['text'].encode('utf8')))
 
 
 def qualitative_task_score_from_value(value):
@@ -175,7 +181,9 @@ def qualitative_task_score_from_value(value):
     breakpoints = [-20, -10, -1, 1, 5, 10]
     return scores[bisect(breakpoints, value)]
 
+
 def set_checklists_status(auth, args):
+    """Set display_checklist status, toggling from cli flag"""
     global checklists_on
 
     if auth['checklists'] == "true":
@@ -183,14 +191,12 @@ def set_checklists_status(auth, args):
     else:
         checklists_on = False
 
-    # Reverse the config setting if specified by the CLI option
+    # reverse the config setting if specified by the CLI option
     if args['--checklists']:
-        if checklists_on:
-                checklists_on = False
-        else:
-            checklists_on = True
+        checklists_on = not checklists_on
 
     return
+
 
 def cli():
     """Habitica command-line interface.
@@ -225,8 +231,8 @@ def cli():
     one or more <task-id> parameters, using either comma-separated lists or
     ranges or both. For example, `todos done 1,3,6-9,11`.
 
-    To show checklists with "todos" and "dailies" permanently, set 'checklists' in your auth.cfg
-    file to 'checklists = true' (without the quotes).
+    To show checklists with "todos" and "dailies" permanently, set
+    'checklists' in your auth.cfg file to `checklists = true`.
     """
 
     # set up args

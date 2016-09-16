@@ -5,7 +5,7 @@ with open('README.md') as f:
 
 setup(
     name='habitica',
-    version='0.0.12',
+    version='0.0.13',
     author='Phil Adams',
     author_email='philadams.net@gmail.com',
     url='https://github.com/philadams/habitica',

@@ -32,7 +32,7 @@ except:
     import configparser
 
 
-VERSION = 'habitica version 0.0.12'
+VERSION = 'habitica version 0.0.13'
 TASK_VALUE_BASE = 0.9747  # http://habitica.wikia.com/wiki/Task_Value
 HABITICA_REQUEST_WAIT_TIME = 0.5  # time to pause between concurrent requests
 HABITICA_TASKS_PAGE = '/#/tasks'

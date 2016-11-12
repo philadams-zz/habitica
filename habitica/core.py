@@ -45,6 +45,8 @@ CACHE_CONF = os.path.expanduser('~') + '/.config/habitica/cache.cfg'
 SECTION_CACHE_QUEST = 'Quest'
 checklists_on = False
 
+DEFAULT_QUEST = 'Not currently on a quest'
+
 
 def load_auth(configfile):
     """Get authentication data from the AUTH_CONF file."""
@@ -287,7 +289,7 @@ def cli():
         # doesn't make this stat particularly easy to grab...).
         # because hitting /content downloads a crapload of stuff, we
         # cache info about the current quest in cache.
-        quest = 'Not currently on a quest'
+        quest = DEFAULT_QUEST
         if (party is not None and
                 party.get('quest', '') and
                 party.get('quest').get('active')):
@@ -355,7 +357,8 @@ def cli():
         print('%s %s' % ('Mana:'.rjust(len_ljust, ' '), mana))
         print('%s %s' % ('Pet:'.rjust(len_ljust, ' '), pet))
         print('%s %s' % ('Mount:'.rjust(len_ljust, ' '), mount))
-        print('%s %s' % ('Quest:'.rjust(len_ljust, ' '), quest))
+        print('%s %s' % ('Quest:'.rjust(len_ljust, ' '), quest) 
+                if quest != DEFAULT_QUEST else '')
 
     # GET/POST habits
     elif args['<command>'] == 'habits':

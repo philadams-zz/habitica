@@ -170,6 +170,18 @@ Via `habitica --help`:
     To show checklists with "todos" and "dailies" permanently, set
     'checklists' in your auth.cfg file to `checklists = true`.
 
+Shell completion
+----------------
+
+Thanks to [Moshend](https://github.com/moshend), habitica now has shell completion! Basically, you'll want to add the following to your `~/.profile`:
+
+    if [ -f PATH_TO_SITE_PACKAGES/habitica/shell_completion.sh ]; then
+        . PATH_TO_SITE_PACKAGES/habitica/shell_completion.sh
+    fi
+
+You can find your site-packages path with `python -c 'import habitica; print
+habitica.__path__[0]'`.
+
 Thanks
 ------
 

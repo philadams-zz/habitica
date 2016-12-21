@@ -80,7 +80,5 @@ class Habitica(object):
         # print(res.url)  # debug...
         if res.status_code == requests.codes.ok:
             return res.json()["data"]
-        elif res.status_code == 404:
-            return None
         else:
             res.raise_for_status()

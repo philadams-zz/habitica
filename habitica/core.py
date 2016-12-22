@@ -233,9 +233,10 @@ def cli():
       server                  Show status of Habitica service
       home                    Open tasks page in default browser
 
-    For `habits up|down`, `dailies done|undo`, and `todos done`, you can pass
-    one or more <task-id> parameters, using either comma-separated lists or
-    ranges or both. For example, `todos done 1,3,6-9,11`.
+    For `habits up|down`, `dailies done|undo`, `todos done`, and `todos
+    delete`, you can pass one or more <task-id> parameters, using either
+    comma-separated lists or ranges or both. For example, `todos done
+    1,3,6-9,11`.
 
     To show checklists with "todos" and "dailies" permanently, set
     'checklists' in your auth.cfg file to `checklists = true`.

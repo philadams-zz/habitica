@@ -7,3 +7,4 @@ Thank you! In alphabetical order. [Full list at
 - [kurohai](https://github.com/kurohai)
 - [Lertsenem](https://github.com/Lertsenem)
 - [mohsend](https://github.com/mohsend)
+- [robertpateii](https://github.com/robertpateii)

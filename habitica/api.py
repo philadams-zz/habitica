@@ -70,7 +70,7 @@ class Habitica(object):
                                 self.resource)
 
         # actually make the request of the API
-        if method in ['put', 'post']:
+        if method in ['put', 'post', 'delete']:
             res = getattr(requests, method)(uri, headers=self.headers,
                                             data=json.dumps(kwargs))
         else:

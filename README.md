@@ -173,7 +173,7 @@ Via `habitica --help`:
 Shell completion
 ----------------
 
-Thanks to [Moshend](https://github.com/moshend), habitica now has shell completion! Basically, you'll want to add the following to your `~/.profile`:
+Thanks to [mohsend](https://github.com/mohsend), habitica now has shell completion! Basically, you'll want to add the following to your `~/.profile`:
 
     if [ -f PATH_TO_SITE_PACKAGES/habitica/shell_completion.sh ]; then
         . PATH_TO_SITE_PACKAGES/habitica/shell_completion.sh

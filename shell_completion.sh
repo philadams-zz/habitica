@@ -36,7 +36,7 @@ _habitica()
             return 0
             ;;
         todos)
-            local todosopt="done add"
+            local todosopt="done add delete"
             COMPREPLY=( $(compgen -W "${todosopt}" -- ${cur}) )
             return 0
             ;;

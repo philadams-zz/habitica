@@ -440,14 +440,14 @@ def cli():
                            priority=PRIORITY[args['--difficulty']],
                            _method='post')
             todos.insert(0, {'completed': False, 'text': ttext})
-            print('added new todo \'%s\'' % ttext.encode('utf8'))
+            print('added new todo \'%s\'' % ttext)
         elif 'delete' in args['<args>']:
             tids = get_task_ids(args['<args>'][1:])
             for tid in tids:
                 hbt.user.tasks(_id=todos[tid]['id'],
                                _method='delete')
                 print('deleted todo \'%s\''
-                      % todos[tid]['text'].encode('utf8'))
+                      % todos[tid]['text'])
                 sleep(HABITICA_REQUEST_WAIT_TIME)
             todos = updated_task_list(todos, tids)
         print_task_list(todos)
